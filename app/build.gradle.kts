@@ -1,9 +1,13 @@
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
+
 plugins {
 	java
 	id("org.springframework.boot") version "3.3.0-SNAPSHOT"
 	id("io.spring.dependency-management") version "1.1.4"
 	id("com.github.ben-manes.versions") version "0.49.0"
 	id("io.freefair.lombok") version "8.4"
+	id("jacoco")
 }
 
 group = "hexlet.code"
@@ -33,4 +37,18 @@ dependencies {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+	// Настройка логирования для тестов
+	testLogging {
+		exceptionFormat = TestExceptionFormat.FULL
+		events = setOf(TestLogEvent.FAILED, TestLogEvent.PASSED, TestLogEvent.SKIPPED)
+		// showStackTraces = true
+		// showCauses = true
+		showStandardStreams = true
+	}
+}
+
+tasks.named<JacocoReport>("jacocoTestReport") {
+	reports {
+		xml.required.set(true)
+	}
 }
