@@ -25,7 +25,7 @@ repositories {
     maven { url = uri("https://repo.spring.io/snapshot") }
 }
 
-application { mainClass.set("hexlet.code.app.AppApplication.java") }
+application { mainClass.set("hexlet.code.app.AppApplication") }
 
 
 dependencies {
@@ -33,7 +33,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-devtools")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-
+    implementation("net.datafaker:datafaker:2.0.2")
     runtimeOnly("com.h2database:h2")
 
     implementation("org.springframework.boot:spring-boot-starter")
