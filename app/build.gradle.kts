@@ -25,7 +25,7 @@ repositories {
     maven { url = uri("https://repo.spring.io/snapshot") }
 }
 
-application { mainClass.set("hexlet.code.AppApplication") }
+application { mainClass.set("hexlet.code.app.AppApplication.java") }
 
 
 dependencies {
