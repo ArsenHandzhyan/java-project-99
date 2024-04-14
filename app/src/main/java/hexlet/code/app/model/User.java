@@ -11,9 +11,9 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
+
 @Getter
 @Setter
-@Accessors(fluent = true)
 @Entity
 @Table(name = "users")
 public class User {
@@ -29,6 +29,7 @@ public class User {
     private String lastName;
 
     @Column(unique = true)
+    @Getter @Setter
     private String email;
 
     private String password;
