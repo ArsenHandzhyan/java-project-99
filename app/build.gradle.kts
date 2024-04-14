@@ -25,6 +25,9 @@ repositories {
     maven { url = uri("https://repo.spring.io/snapshot") }
 }
 
+application { mainClass.set("hexlet.code.AppApplication") }
+
+
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
