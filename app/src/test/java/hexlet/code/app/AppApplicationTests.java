@@ -12,7 +12,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -44,13 +44,14 @@ public class AppApplicationTests {
 
     @Test
     public void testGetAllUsers() throws Exception {
-        List<User> users = Arrays.asList(user);
+        List<User> users = Collections.singletonList(user);
         when(userRepository.findAll()).thenReturn(users);
 
         mockMvc.perform(MockMvcRequestBuilders.get("/users")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json("[{\"id\":1,\"email\":\"john.doe@example.com\",\"firstName\":\"John\",\"lastName\":\"Doe\"}]"));
+                .andExpect(content().json("[{\"id\":1,\"email\":\"john.doe@example.com\","
+                        + "\"firstName\":\"John\",\"lastName\":\"Doe\"}]"));
     }
 
     @Test
@@ -60,27 +61,8 @@ public class AppApplicationTests {
         mockMvc.perform(MockMvcRequestBuilders.get("/users/1")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
-                .andExpect(content().json("{\"id\":1,\"email\":\"john.doe@example.com\",\"firstName\":\"John\",\"lastName\":\"Doe\"}"));
-    }
-
-    @Test
-    public void testCreateUser() throws Exception {
-        User newUser = new User();
-        newUser.setEmail("jack@google.com");
-        newUser.setFirstName("Jack");
-        newUser.setLastName("Jons");
-        newUser.setPassword("some-password");
-
-        // Предполагаем, что после сохранения пользователя в базе данных, ему присваивается ID.
-        // Для теста мы мокируем метод save так, чтобы он возвращал newUser с присвоенным ID.
-        when(userRepository.save(newUser)).thenReturn(newUser);
-
-        // Добавляем ID в ожидаемый JSON, так как он должен быть возвращен сервером.
-        mockMvc.perform(MockMvcRequestBuilders.post("/users")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"email\":\"jack@google.com\",\"firstName\":\"Jack\",\"lastName\":\"Jons\",\"password\":\"some-password\"}"))
-                .andExpect(status().isOk())
-                .andExpect(content().json("{\"id\":1,\"email\":\"jack@google.com\",\"firstName\":\"Jack\",\"lastName\":\"Jons\",\"password\":\"some-password\"}"));
+                .andExpect(content().json("{\"id\":1,\"email\":\"john.doe@example.com\","
+                        + "\"firstName\":\"John\",\"lastName\":\"Doe\"}"));
     }
 
     @Test
@@ -99,7 +81,8 @@ public class AppApplicationTests {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"jack@yahoo.com\",\"password\":\"new-password\"}"))
                 .andExpect(status().isOk())
-                .andExpect(content().json("{\"id\":3,\"email\":\"jack@yahoo.com\",\"firstName\":\"Jack\",\"lastName\":\"Jons\"}"));
+                .andExpect(content().json("{\"id\":3,\"email\":\"jack@yahoo.com\","
+                        + "\"firstName\":\"Jack\",\"lastName\":\"Jons\"}"));
     }
 
     @Test

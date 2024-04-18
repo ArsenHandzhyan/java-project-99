@@ -14,7 +14,7 @@ public class DatabaseInitializer {
         return args -> {
             User user = new User();
             user.setEmail("hexlet@example.com");
-            user.setPassword("qwerty"); // Убедитесь, что пароль хешируется
+            user.setPassword("qwerty");
             userRepository.save(user);
         };
     }

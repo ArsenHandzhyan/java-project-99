@@ -1,12 +1,21 @@
 package hexlet.code.app.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import hexlet.code.app.dto.UserDTO;
+import hexlet.code.app.dto.UserCreateDTO;
+import hexlet.code.app.dto.UserUpdateDTO;
+import hexlet.code.app.exeption.ResourceNotFoundException;
+import hexlet.code.app.mapper.UserMapper;
 import hexlet.code.app.model.User;
-import hexlet.code.app.repository.UserRepository;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.web.bind.annotation.*;
-
+import hexlet.code.app.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
@@ -14,58 +23,45 @@ import java.util.List;
 @RequestMapping("/users")
 public class UserController {
 
-    @Autowired
-    private BCryptPasswordEncoder bCryptPasswordEncoder;
+    private final UserService userService;
+    private final UserMapper userMapper;
 
     @Autowired
-    private UserRepository userRepository;
+    public UserController(UserService userService, UserMapper userMapper) {
+        this.userService = userService;
+        this.userMapper = userMapper;
+    }
+
 
     @GetMapping
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
+    public List<UserDTO> getAllUsers() {
+        var users = userService.getAllUsers();
+        return users.stream()
+                .map(userMapper::map)
+                .toList();
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
-        return userRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElse(ResponseEntity.notFound().build());
+    public UserDTO getUserById(@PathVariable Long id) {
+        var user = userService.getUserById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task with id " + id + " not found"));
+        return userMapper.map(user);
     }
 
     @PostMapping
-    public ResponseEntity<User> createUser(@RequestBody User user) {
-        // Хеширование пароля
-        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
-
-        // Сохранение пользователя в базе данных
-        User savedUser = userRepository.save(user);
-
-        // Возвращение сохранённого пользователя в ответе
-        return ResponseEntity.ok(savedUser);
+    public UserDTO createUser(@RequestBody UserCreateDTO userCreateDTO) {
+        return userMapper.map(userService.createUser(userMapper.map(userCreateDTO)));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User userDetails) {
-        return userRepository.findById(id)
-                .map(user -> {
-                    user.setEmail(userDetails.getEmail());
-                    user.setFirstName(userDetails.getFirstName());
-                    user.setLastName(userDetails.getLastName());
-                    // Хеширование пароля перед обновлением
-                    user.setPassword(bCryptPasswordEncoder.encode(userDetails.getPassword()));
-                    return ResponseEntity.ok(userRepository.save(user));
-                })
-                .orElse(ResponseEntity.notFound().build());
+    public UserDTO updateUser(@PathVariable Long id, @RequestBody UserUpdateDTO userUpdateDTO) {
+        User user = userService.getUserById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
+        return userMapper.map(userService.updateUser(id, userMapper.map(userUpdateDTO)));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
-        return userRepository.findById(id)
-                .map(user -> {
-                    userRepository.delete(user);
-                    return ResponseEntity.ok().build();
-                })
-                .orElse(ResponseEntity.notFound().build());
+    public void deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
     }
 }
-

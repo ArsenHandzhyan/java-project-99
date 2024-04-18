@@ -29,16 +29,20 @@ application { mainClass.set("hexlet.code.app.AppApplication") }
 
 
 dependencies {
+    implementation("org.mapstruct:mapstruct:1.5.5.Final")
+    annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.boot:spring-boot-devtools")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.security:spring-security-crypto:6.2.1")
+    implementation("org.openapitools:jackson-databind-nullable:0.2.6")
     implementation("net.datafaker:datafaker:2.0.2")
     runtimeOnly("com.h2database:h2")
     implementation("org.projectlombok:lombok:1.18.32")
     annotationProcessor("org.projectlombok:lombok:1.18.32")
     implementation("org.springframework.boot:spring-boot-starter")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
 }
 
