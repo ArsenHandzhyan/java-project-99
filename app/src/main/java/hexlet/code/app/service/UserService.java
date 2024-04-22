@@ -2,6 +2,7 @@ package hexlet.code.app.service;
 
 import hexlet.code.app.model.User;
 import hexlet.code.app.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +19,13 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+    @Transactional
     public User createUser(User user) {
+        // Проверяем, существует ли пользователь с таким же адресом электронной почты
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new IllegalArgumentException("Пользователь с таким адресом электронной почты уже существует");
+        }
+        // Если пользователь не существует, вставляем новую запись
         return userRepository.save(user);
     }
 

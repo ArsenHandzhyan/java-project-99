@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api")
 public class UserController {
 
     private final UserService userService;
@@ -33,7 +33,7 @@ public class UserController {
     }
 
 
-    @GetMapping
+    @GetMapping("/users")
     public List<UserDTO> getAllUsers() {
         var users = userService.getAllUsers();
         return users.stream()
@@ -41,7 +41,7 @@ public class UserController {
                 .toList();
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/users/{id}")
     public UserDTO getUserById(@PathVariable Long id) {
         var user = userService.getUserById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task with id " + id + " not found"));
@@ -53,14 +53,14 @@ public class UserController {
         return userMapper.map(userService.createUser(userMapper.map(userCreateDTO)));
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/users/{id}")
     public UserDTO updateUser(@PathVariable Long id, @RequestBody UserUpdateDTO userUpdateDTO) {
         User user = userService.getUserById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
-        return userMapper.map(userService.updateUser(id, userMapper.map(userUpdateDTO)));
+        return userMapper.map(userService.updateUser(id, userMapper.update(userUpdateDTO, user)));
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/users/{id}")
     public void deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
     }

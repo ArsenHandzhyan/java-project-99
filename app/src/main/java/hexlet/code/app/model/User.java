@@ -9,45 +9,76 @@ import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 
+@Entity
 @Getter
 @Setter
-@Entity
 @Table(name = "users")
-public class User implements BaseEntity {
+@NoArgsConstructor
+public class User implements UserDetails, BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "first_name")
-    @NotBlank(message = "First name cannot be blank")
-    @Size(min = 2, max = 30, message = "First name must be between 2 and 30 characters")
-    private String firstName;
+    private String firstName; // Сделано необязательным
 
     @Column(name = "last_name")
-    @NotBlank(message = "Last name cannot be blank")
-    @Size(min = 2, max = 30, message = "Last name must be between 2 and 30 characters")
-    private String lastName;
+    private String lastName; // Сделано необязательным
 
     @Column(unique = true)
-    @Getter
-    @Setter
     @NotBlank(message = "Email cannot be blank")
     @Email(message = "Email should be valid")
     private String email;
 
     @NotBlank(message = "Password cannot be blank")
-    @Size(min = 8, max = 20, message = "Password must be between 8 and 20 characters")
+    @Size(min = 3, message = "Password must be at least 3 characters")
     private String password;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt; // Заполняется автоматически
 
     @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    private LocalDateTime updatedAt; // Заполняется автоматически
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
+    @Override
+    public String getUsername() {
+        return "";
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
+    }
 }
