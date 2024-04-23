@@ -1,14 +1,15 @@
 package hexlet.code.app.component;
 
+import hexlet.code.app.model.Label;
 import hexlet.code.app.model.TaskStatus;
 import hexlet.code.app.model.User;
+import hexlet.code.app.service.LabelService;
 import hexlet.code.app.service.TaskStatusService;
 import hexlet.code.app.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -22,7 +23,7 @@ public class DataInitializer implements ApplicationRunner {
     private TaskStatusService taskStatusService;
 
     @Autowired
-    private PasswordEncoder passwordEncoder;
+    private LabelService labelService;
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
@@ -40,6 +41,15 @@ public class DataInitializer implements ApplicationRunner {
                     status.setSlug(statusName.toLowerCase().replace(" ", "_"));
                     status.setCreatedAt(LocalDateTime.now());
                     taskStatusService.createTaskStatus(status);
+                });
+
+        // Создание дефолтных меток
+        Arrays.asList("feature", "bug")
+                .forEach(labelName -> {
+                    Label label = new Label();
+                    label.setName(labelName);
+                    label.setCreatedAt(LocalDateTime.now());
+                    labelService.createLabel(label.getName());
                 });
     }
 }

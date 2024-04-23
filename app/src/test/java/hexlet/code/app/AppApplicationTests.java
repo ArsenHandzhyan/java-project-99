@@ -1,10 +1,11 @@
 package hexlet.code.app;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hexlet.code.app.dto.TaskStatusCreateDTO;
-import hexlet.code.app.dto.TaskStatusUpdateDTO;
-import hexlet.code.app.model.TaskStatus;
-import hexlet.code.app.repository.TaskStatusRepository;
+import hexlet.code.app.dto.TaskCreateDTO;
+import hexlet.code.app.dto.TaskUpdateDTO;
+import hexlet.code.app.mapper.TaskMapper;
+import hexlet.code.app.model.Task;
+import hexlet.code.app.service.TaskService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,19 +13,32 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+
+import hexlet.code.app.dto.TaskStatusCreateDTO;
+import hexlet.code.app.dto.TaskStatusUpdateDTO;
+import hexlet.code.app.model.TaskStatus;
+import hexlet.code.app.model.User;
+import hexlet.code.app.repository.TaskStatusRepository;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.util.Optional;
+import java.time.LocalDateTime;
 
 import static com.jayway.jsonpath.internal.path.PathCompiler.fail;
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.hamcrest.Matchers.is;
@@ -35,8 +49,17 @@ import static org.hamcrest.Matchers.is;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 class AppApplicationTests {
 
+    @MockBean
+    private TaskService taskService;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private TaskMapper taskMapper;
 
     @MockBean
     private TaskStatusRepository taskStatusRepository;
@@ -182,6 +205,131 @@ class AppApplicationTests {
 
         mockMvc.perform(MockMvcRequestBuilders.delete("/api/task_statuses/1")
                         .header("Authorization", "Bearer " + token))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    public void getTaskByIdTest() throws Exception {
+        TaskCreateDTO task = new TaskCreateDTO();
+        task.setName("Task 1");
+        task.setIndex(3140);
+        task.setDescription("Description of task 1");
+        task.setTaskStatus("to_be_fixed");
+        task.setCreatedAt(LocalDateTime.now());
+        task.setAssignee(new User());
+        taskService.createTask(task);
+        when(taskService.getTaskById(1L)).thenReturn(taskMapper.toEntity(task));
+
+        mockMvc.perform(get("/api/tasks/1")
+                        .header("Authorization", "Bearer " + token)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.name").value("Task 1"))
+                .andExpect(jsonPath("$.index").value(3140))
+                .andExpect(jsonPath("$.description").value("Description of task 1"))
+                .andExpect(jsonPath("$.taskStatus").value("to_be_fixed"))
+                .andExpect(jsonPath("$.createdAt").exists());
+    }
+
+    @Test
+    public void getAllTasksTest() throws Exception {
+        Task task1 = new Task();
+        task1.setId(1L);
+        task1.setName("Task 1");
+        task1.setIndex(3140);
+        task1.setDescription("Description of task 1");
+        task1.setTaskStatus("to_be_fixed");
+        task1.setCreatedAt(LocalDateTime.now());
+        task1.setAssignee(new User());
+
+        Task task2 = new Task();
+        task2.setId(2L);
+        task2.setName("Task 2");
+        task2.setIndex(3161);
+        task2.setDescription("Description of task 2");
+        task2.setTaskStatus("to_review");
+        task2.setCreatedAt(LocalDateTime.now());
+        task2.setAssignee(new User());
+
+        when(taskService.getAllTasks()).thenReturn(List.of(task1, task2));
+
+        mockMvc.perform(get("/api/tasks")
+                        .header("Authorization", "Bearer " + token)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andExpect(jsonPath("$[0].id").value(1))
+                .andExpect(jsonPath("$[0].name").value("Task 1"))
+                .andExpect(jsonPath("$[1].id").value(2))
+                .andExpect(jsonPath("$[1].name").value("Task 2"));
+    }
+
+    @Test
+    public void createTaskTest() throws Exception {
+        TaskCreateDTO taskCreateDTO = new TaskCreateDTO();
+        taskCreateDTO.setIndex(12);
+        taskCreateDTO.setName("Test title");
+        taskCreateDTO.setDescription("Aaaaaaaa");
+        taskCreateDTO.setTaskStatus("draft");
+
+        Task task = new Task();
+        task.setId(31L);
+        task.setIndex(12);
+        task.setName("Test title");
+        task.setDescription("Test content");
+        task.setTaskStatus("draft");
+
+        when(taskService.createTask(any(TaskCreateDTO.class))).thenReturn(task);
+
+        mockMvc.perform(post("/api/tasks")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskCreateDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(31))
+                .andExpect(jsonPath("$.index").value(12))
+                .andExpect(jsonPath("$.name").value("Test title"))
+                .andExpect(jsonPath("$.description").value("Test content"))
+                .andExpect(jsonPath("$.taskStatus").value("draft"));
+    }
+
+    @Test
+    public void updateTaskTest() throws Exception {
+        TaskUpdateDTO taskUpdateDTO = new TaskUpdateDTO();
+        taskUpdateDTO.setName("New title");
+        taskUpdateDTO.setDescription("New content");
+
+        Task task = new Task();
+        task.setId(31L);
+        task.setIndex(12);
+        task.setName("New title");
+        task.setDescription("New content");
+        task.setTaskStatus("draft");
+        task.setCreatedAt(LocalDateTime.now());
+        task.setAssignee(new User());
+
+        when(taskService.updateTask(31L, taskUpdateDTO)).thenReturn(task);
+
+        mockMvc.perform(put("/api/tasks/31")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskUpdateDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(31))
+                .andExpect(jsonPath("$.index").value(12))
+                .andExpect(jsonPath("$.name").value("New title"))
+                .andExpect(jsonPath("$.description").value("New content"))
+                .andExpect(jsonPath("$.taskStatus").value("draft"))
+                .andExpect(jsonPath("$.createdAt").exists());
+    }
+
+    @Test
+    public void deleteTaskTest() throws Exception {
+        doNothing().when(taskService).deleteTask(31L);
+
+        mockMvc.perform(delete("/api/tasks/31")
+                        .header("Authorization", "Bearer " + token)
+                        .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
     }
 }
