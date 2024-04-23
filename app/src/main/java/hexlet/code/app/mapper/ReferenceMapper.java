@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import hexlet.code.app.model.BaseEntity;
 import jakarta.persistence.EntityManager;
 
-// BEGIN
 @Mapper(
         componentModel = MappingConstants.ComponentModel.SPRING
 )
