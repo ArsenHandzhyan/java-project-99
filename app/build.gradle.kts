@@ -29,6 +29,10 @@ application { mainClass.set("hexlet.code.app.AppApplication") }
 
 
 dependencies {
+    implementation("gg.jte:jte:3.1.9")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
+    testImplementation("org.springframework.security:spring-security-test")
     implementation("org.mapstruct:mapstruct:1.5.5.Final")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
     implementation("org.springframework.boot:spring-boot-starter-web")

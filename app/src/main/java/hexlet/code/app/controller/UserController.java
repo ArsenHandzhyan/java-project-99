@@ -1,13 +1,14 @@
 package hexlet.code.app.controller;
 
-import hexlet.code.app.dto.UserDTO;
 import hexlet.code.app.dto.UserCreateDTO;
+import hexlet.code.app.dto.UserDTO;
 import hexlet.code.app.dto.UserUpdateDTO;
-import hexlet.code.app.exeption.ResourceNotFoundException;
 import hexlet.code.app.mapper.UserMapper;
 import hexlet.code.app.model.User;
 import hexlet.code.app.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,53 +16,54 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 public class UserController {
 
     private final UserService userService;
     private final UserMapper userMapper;
 
-    @Autowired
     public UserController(UserService userService, UserMapper userMapper) {
         this.userService = userService;
         this.userMapper = userMapper;
     }
 
 
-    @GetMapping
-    public List<UserDTO> getAllUsers() {
-        var users = userService.getAllUsers();
-        return users.stream()
-                .map(userMapper::map)
-                .toList();
+    @GetMapping("/{id}")
+    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+        User user = userService.getUserById(id);
+        return ResponseEntity.ok(user);
     }
 
-    @GetMapping("/{id}")
-    public UserDTO getUserById(@PathVariable Long id) {
-        var user = userService.getUserById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Task with id " + id + " not found"));
-        return userMapper.map(user);
+    @GetMapping
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = userService.getAllUsers();
+        return ResponseEntity.ok(users);
     }
 
     @PostMapping
-    public UserDTO createUser(@RequestBody UserCreateDTO userCreateDTO) {
-        return userMapper.map(userService.createUser(userMapper.map(userCreateDTO)));
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<User> createUser(@RequestBody UserCreateDTO userData) {
+        User createdUser = userService.createUser(userMapper.map(userData));
+        return ResponseEntity.ok(createdUser);
     }
 
     @PutMapping("/{id}")
-    public UserDTO updateUser(@PathVariable Long id, @RequestBody UserUpdateDTO userUpdateDTO) {
-        User user = userService.getUserById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("User with id " + id + " not found"));
-        return userMapper.map(userService.updateUser(id, userMapper.map(userUpdateDTO)));
+    public ResponseEntity<UserDTO> updateUser(@RequestBody @Valid UserUpdateDTO userData, @PathVariable Long id) {
+        var user = userService.getUserById(id);
+        userMapper.update(userData, user);
+        userService.createUser(user);
+        return  ResponseEntity.ok(userMapper.map(user));
     }
 
     @DeleteMapping("/{id}")
-    public void deleteUser(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
         userService.deleteUser(id);
+        return ResponseEntity.noContent().build();
     }
 }

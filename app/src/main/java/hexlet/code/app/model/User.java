@@ -5,49 +5,84 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
+import java.util.List;
 
-@Getter
-@Setter
 @Entity
 @Table(name = "users")
-public class User implements BaseEntity {
+@Getter
+@Setter
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "first_name")
-    @NotBlank(message = "First name cannot be blank")
-    @Size(min = 2, max = 30, message = "First name must be between 2 and 30 characters")
     private String firstName;
-
-    @Column(name = "last_name")
-    @NotBlank(message = "Last name cannot be blank")
-    @Size(min = 2, max = 30, message = "Last name must be between 2 and 30 characters")
     private String lastName;
 
     @Column(unique = true)
-    @Getter
-    @Setter
-    @NotBlank(message = "Email cannot be blank")
-    @Email(message = "Email should be valid")
+    @Email
     private String email;
 
-    @NotBlank(message = "Password cannot be blank")
-    @Size(min = 8, max = 20, message = "Password must be between 8 and 20 characters")
+    @NotBlank
+    @Size(min = 3, message = "Password must be at least 3 characters long")
     private String password;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt = LocalDateTime.now();
 
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt = LocalDateTime.now();
+
+    @PreUpdate
+    public void updateTimestamp() {
+        this.updatedAt = LocalDateTime.now();
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of();
+    }
+
+    @Override
+    public String getPassword() {
+        return password;
+    }
+
+    @Override
+    public String getUsername() {
+        return email;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }
