@@ -57,7 +57,7 @@ public class UserController {
     public ResponseEntity<UserDTO> updateUser(@RequestBody @Valid UserUpdateDTO userData, @PathVariable Long id) {
         var user = userService.getUserById(id);
         userMapper.update(userData, user);
-        userService.createUser(user);
+        userService.updateUser(id, user);
         return  ResponseEntity.ok(userMapper.map(user));
     }
 
