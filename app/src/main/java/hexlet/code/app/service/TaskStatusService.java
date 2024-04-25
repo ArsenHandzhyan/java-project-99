@@ -23,7 +23,8 @@ public class TaskStatusService {
         TaskStatus existingTaskStatus = taskStatusRepository.findBySlug(taskStatusDTO.getSlug());
         if (existingTaskStatus != null) {
             // Handle the case where a TaskStatus with the same slug already exists
-            throw new IllegalArgumentException("A TaskStatus with the slug " + taskStatusDTO.getSlug() + " already exists.");
+            throw new IllegalArgumentException("A TaskStatus with the slug "
+                    + taskStatusDTO.getSlug() + " already exists.");
         }
         var taskStatus = new TaskStatus();
         taskStatus.setName(taskStatusDTO.getName());
