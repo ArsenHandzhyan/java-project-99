@@ -22,7 +22,7 @@ public class LabelService {
 
 
     public List<Label> getAllLabels() {
-        return labelRepository.findAll();
+        return (List<Label>) labelRepository.findAll();
     }
 
     public Label createLabel(LabelCreateDTO labelCreateDTO) {

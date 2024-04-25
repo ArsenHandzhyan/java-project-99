@@ -14,6 +14,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.access.prepost.PreAuthorize;
+
 
 import java.util.Collections;
 import java.util.List;
@@ -30,25 +32,25 @@ public class TaskStatusController {
         this.taskStatusService = taskStatusService;
         this.taskStatusMapper = taskStatusMapper;
     }
-
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
     public ResponseEntity<TaskStatusDTO> getTaskStatusById(@PathVariable Long id) {
         var taskStatus = taskStatusService.getTaskStatusById(id);
         return ResponseEntity.ok(taskStatusMapper.map(taskStatus));
     }
-
+    @PreAuthorize("isAuthenticated()")
     @GetMapping
     public ResponseEntity<List<TaskStatusDTO>> getAllTaskStatuses() {
         var taskStatuses = taskStatusService.getAllTaskStatuses();
         return ResponseEntity.ok(Collections.singletonList((TaskStatusDTO) taskStatusMapper.map(taskStatuses)));
     }
-
+    @PreAuthorize("isAuthenticated()")
     @PostMapping
     public ResponseEntity<TaskStatusDTO> createTaskStatus(@RequestBody TaskStatusCreateDTO taskStatus) {
         var createdTaskStatus = taskStatusService.createTaskStatus(taskStatus);
         return ResponseEntity.ok(taskStatusMapper.map(createdTaskStatus));
     }
-
+    @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
     public ResponseEntity<TaskStatusDTO> updateTaskStatus(@PathVariable Long id,
                                                        @RequestBody TaskStatusUpdateDTO taskStatus) {
@@ -56,7 +58,7 @@ public class TaskStatusController {
         taskStatusMapper.update(taskStatus, updatedTaskStatus);
         return ResponseEntity.ok(taskStatusMapper.map(updatedTaskStatus));
     }
-
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTaskStatus(@PathVariable Long id) {
         taskStatusService.deleteTaskStatus(id);

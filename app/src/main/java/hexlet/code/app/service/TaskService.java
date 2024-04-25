@@ -2,56 +2,61 @@ package hexlet.code.app.service;
 
 import hexlet.code.app.dto.TaskCreateDTO;
 import hexlet.code.app.dto.TaskUpdateDTO;
-import hexlet.code.app.model.Label;
+import hexlet.code.app.mapper.TaskMapper;
 import hexlet.code.app.model.Task;
 import hexlet.code.app.repository.TaskRepository;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class TaskService {
 
-    public TaskService(TaskRepository taskRepository) {
-        this.taskRepository = taskRepository;
-    }
-
     private final TaskRepository taskRepository;
+    private final TaskMapper taskMapper;
 
-    public Task createTask(TaskCreateDTO taskDTO) {
-        Task task = new Task();
-        task.setName(taskDTO.getName());
-        task.setIndex(taskDTO.getIndex());
-        task.setDescription(taskDTO.getDescription());
-        task.setTaskStatus(taskDTO.getTaskStatus());
-        task.setAssignee(taskDTO.getAssignee());
-        return taskRepository.save(task);
+    @Autowired
+    public TaskService(TaskRepository taskRepository, TaskMapper taskMapper) {
+        this.taskRepository = taskRepository;
+        this.taskMapper = taskMapper;
     }
 
-    public Task updateTask(Long id, TaskUpdateDTO taskDTO) {
+    public Task create(TaskCreateDTO task) {
+        Task taskEntity = taskMapper.toEntity(task);
+        taskEntity.setName(task.getName());
+        taskEntity.setIndex(task.getIndex());
+        taskEntity.setDescription(task.getDescription());
+        taskEntity.setTaskStatus(task.getTaskStatus());
+        taskEntity.setAssignee(task.getAssignee());
+        taskEntity.setCreatedAt(LocalDateTime.now());
+        return taskRepository.save(taskEntity);
+    }
+
+    public List<Task> findAll() {
+        return (List<Task>) taskRepository.findAll();
+    }
+
+    public Task findById(Long id) {
+        return taskRepository.findById(id).orElseThrow();
+    }
+
+    public Task update(Long id, TaskUpdateDTO task) {
         return taskRepository.findById(id)
-                .map(task -> {
-                    task.setName(taskDTO.getName());
-                    task.setDescription(taskDTO.getDescription());
-                    return taskRepository.save(task);
+                .map(existingTask -> {
+                    existingTask.setName(task.getName());
+                    existingTask.setIndex(task.getIndex());
+                    existingTask.setDescription(task.getDescription());
+                    existingTask.setTaskStatus(task.getTaskStatus());
+                    existingTask.setAssignee(task.getAssignee());
+                    existingTask.setCreatedAt(LocalDateTime.now());
+                    return taskRepository.save(existingTask);
                 })
-                .orElse(null);
+                .orElseThrow(() -> new RuntimeException("Task not found"));
     }
 
-    public Task getTaskById(Long id) {
-        return taskRepository.findById(id).orElse(null);
-    }
-
-    public List<Task> getAllTasks() {
-        return taskRepository.findAll();
-    }
-
-    @Transactional
-    public void deleteTask(Long labelId) {
-        Task task = taskRepository.findById(labelId)
-                .orElseThrow(() -> new EntityNotFoundException("Task not found"));
-        taskRepository.delete(task);
+    public void delete(Long id) {
+        taskRepository.deleteById(id);
     }
 }

@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class TaskUpdateDTO extends BasePage {
     private String name;
+    private Integer index;
     private String description;
     private String taskStatus;
     private LocalDateTime updatedAt;

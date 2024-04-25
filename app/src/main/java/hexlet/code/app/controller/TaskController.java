@@ -24,7 +24,6 @@ import java.util.List;
 public class TaskController {
 
     private final TaskService taskService;
-
     private final TaskMapper taskMapper;
 
     public TaskController(TaskService taskService, TaskMapper taskMapper) {
@@ -34,7 +33,7 @@ public class TaskController {
 
     @GetMapping
     public ResponseEntity<List<TaskDTO>> getAllTasks() {
-        var tasks = taskService.getAllTasks();
+        var tasks = taskService.findAll();
         List<TaskDTO> taskDTOs = taskMapper.map(tasks);
 
         HttpHeaders headers = new HttpHeaders();
@@ -45,23 +44,23 @@ public class TaskController {
 
     @GetMapping("/{id}")
     public TaskDTO getTaskById(@PathVariable Long id) {
-        return taskMapper.map(taskService.getTaskById(id));
+        return taskMapper.map(taskService.findById(id));
     }
 
     @PostMapping
     public TaskDTO createTask(@RequestBody TaskCreateDTO taskDTO) {
-        return taskMapper.map(taskService.createTask(taskDTO));
+        return taskMapper.map(taskService.create(taskDTO));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<TaskDTO> updateTask(@PathVariable Long id, @RequestBody TaskUpdateDTO taskDTO) {
-        Task updatedTask = taskService.updateTask(id, taskDTO);
+        Task updatedTask = taskService.update(id, taskDTO);
         return ResponseEntity.ok(taskMapper.map(updatedTask));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
-        taskService.deleteTask(id);
+        taskService.delete(id);
         return ResponseEntity.noContent().build();
     }
 }

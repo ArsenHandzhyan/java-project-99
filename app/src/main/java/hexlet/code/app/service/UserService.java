@@ -43,7 +43,7 @@ public class UserService {
     }
 
     public List<User> getAllUsers() {
-        return userRepository.findAll();
+        return (List<User>) userRepository.findAll();
     }
 
     public User updateUser(Long id, UserUpdateDTO userData) {
