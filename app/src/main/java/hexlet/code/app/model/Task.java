@@ -21,6 +21,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
+
 @Entity
 @Getter
 @Setter
@@ -33,19 +36,32 @@ public class Task implements UserDetails, BaseEntity {
             inverseJoinColumns = @JoinColumn(name = "label_id")
     )
     private Set<Label> labels = new HashSet<>();
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false, unique = true)
+
+    @Column(name = "title", nullable = false)
+    @NotBlank(message = "Name is mandatory")
+    @Size(min = 1, message = "Name must be at least 1 character long")
     private String name;
+
     @Column(nullable = false, unique = true)
     private Integer index;
-    @Column(nullable = false, unique = true)
+
+    @Column(name = "content", nullable = false)
     private String description;
-    @Column(nullable = false, unique = true)
+
+    @Column(name = "status", nullable = false)
+    @NotBlank(message = "Task status is mandatory")
     private String taskStatus;
+
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt = LocalDateTime.now();
+
     @ManyToOne
     @JoinColumn(name = "assignee_id")
     private User assignee;

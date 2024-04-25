@@ -49,16 +49,18 @@ public class UserController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<User> createUser(@RequestBody UserCreateDTO userData) {
-        User createdUser = userService.createUser(userMapper.map(userData));
-        return ResponseEntity.ok(createdUser);
+        var user = userService.getUserByEmail(userData.getEmail());
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(userData));
+        }
+        return new ResponseEntity<>(user, HttpStatus.CONFLICT);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<UserDTO> updateUser(@RequestBody @Valid UserUpdateDTO userData, @PathVariable Long id) {
-        var user = userService.getUserById(id);
-        userMapper.update(userData, user);
-        userService.updateUser(id, user);
-        return  ResponseEntity.ok(userMapper.map(user));
+        User user = userService.getUserById(id);
+        userService.updateUser(id, userData);
+        return ResponseEntity.ok(userMapper.map(user));
     }
 
     @DeleteMapping("/{id}")

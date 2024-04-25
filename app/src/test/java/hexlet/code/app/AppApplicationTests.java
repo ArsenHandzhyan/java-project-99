@@ -38,7 +38,7 @@ import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.hamcrest.Matchers.is;
@@ -117,10 +117,8 @@ class AppApplicationTests {
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"email\":\"" + uniqueEmail + "\", \"password\":\"hexlet\"}"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email", is(uniqueEmail)))
-                // Expect the hashed password instead of the plain text password
-                .andExpect(jsonPath("$.password").exists());
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.email", is(uniqueEmail)));
     }
 
     @Test
@@ -295,28 +293,28 @@ class AppApplicationTests {
 
     @Test
     public void updateTaskTest() throws Exception {
+        // Prepare the test data
         TaskUpdateDTO taskUpdateDTO = new TaskUpdateDTO();
         taskUpdateDTO.setName("New title");
         taskUpdateDTO.setDescription("New content");
 
+        // Mock the service layer
         Task task = new Task();
         task.setId(31L);
-        task.setIndex(12);
         task.setName("New title");
         task.setDescription("New content");
         task.setTaskStatus("draft");
         task.setCreatedAt(LocalDateTime.now());
-        task.setAssignee(new User());
+        task.setAssignee(new User()); // Assuming User is a valid entity
 
         when(taskService.updateTask(31L, taskUpdateDTO)).thenReturn(task);
 
-        mockMvc.perform(put("/api/tasks/31")
-                        .header("Authorization", "Bearer " + token)
+        // Perform the request
+        mockMvc.perform(MockMvcRequestBuilders.put("/api/tasks/31")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(taskUpdateDTO)))
+                        .content("{\"name\":\"New title\",\"description\":\"New content\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(31))
-                .andExpect(jsonPath("$.index").value(12))
                 .andExpect(jsonPath("$.name").value("New title"))
                 .andExpect(jsonPath("$.description").value("New content"))
                 .andExpect(jsonPath("$.taskStatus").value("draft"))

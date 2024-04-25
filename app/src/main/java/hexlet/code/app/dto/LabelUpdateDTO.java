@@ -1,10 +1,35 @@
 package hexlet.code.app.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
-@Data
+import java.time.LocalDateTime;
+
+@Getter
+@Setter
 @AllArgsConstructor
-public class LabelUpdateDTO {
+public class LabelUpdateDTO extends BasePage {
     private String name;
+    private LocalDateTime updatedAt;
+
+    /**
+     * Gets the flash message.
+     *
+     * @return the flash message
+     */
+    @Override
+    public String getFlash() {
+        return super.getFlash();
+    }
+
+    /**
+     * Sets the flash message.
+     *
+     * @param flash the flash message to set
+     */
+    @Override
+    public void setFlash(String flash) {
+        super.setFlash(flash);
+    }
 }

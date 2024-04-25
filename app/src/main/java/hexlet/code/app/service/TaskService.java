@@ -2,11 +2,13 @@ package hexlet.code.app.service;
 
 import hexlet.code.app.dto.TaskCreateDTO;
 import hexlet.code.app.dto.TaskUpdateDTO;
+import hexlet.code.app.model.Label;
 import hexlet.code.app.model.Task;
 import hexlet.code.app.repository.TaskRepository;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -25,7 +27,6 @@ public class TaskService {
         task.setDescription(taskDTO.getDescription());
         task.setTaskStatus(taskDTO.getTaskStatus());
         task.setAssignee(taskDTO.getAssignee());
-        task.setCreatedAt(LocalDateTime.now());
         return taskRepository.save(task);
     }
 
@@ -34,8 +35,6 @@ public class TaskService {
                 .map(task -> {
                     task.setName(taskDTO.getName());
                     task.setDescription(taskDTO.getDescription());
-                    task.setTaskStatus(taskDTO.getTaskStatus());
-                    task.setAssignee(taskDTO.getAssignee());
                     return taskRepository.save(task);
                 })
                 .orElse(null);
@@ -49,7 +48,10 @@ public class TaskService {
         return taskRepository.findAll();
     }
 
-    public void deleteTask(Long id) {
-        taskRepository.deleteById(id);
+    @Transactional
+    public void deleteTask(Long labelId) {
+        Task task = taskRepository.findById(labelId)
+                .orElseThrow(() -> new EntityNotFoundException("Task not found"));
+        taskRepository.delete(task);
     }
 }

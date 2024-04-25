@@ -1,8 +1,9 @@
 package hexlet.code.app.controller;
 
+import hexlet.code.app.dto.LabelCreateDTO;
 import hexlet.code.app.dto.LabelDTO;
+import hexlet.code.app.dto.LabelUpdateDTO;
 import hexlet.code.app.mapper.LabelMapper;
-import hexlet.code.app.model.Label;
 import hexlet.code.app.service.LabelService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -39,13 +40,13 @@ public class LabelController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping
-    public LabelDTO createLabel(@RequestBody Label label) {
-        return labelMapper.map(labelService.createLabel(label.getName()));
+    public LabelDTO createLabel(@RequestBody LabelCreateDTO label) {
+        return labelMapper.map(labelService.createLabel(label));
     }
 
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
-    public LabelDTO updateLabel(@PathVariable Long id, @RequestBody Label label) {
+    public LabelDTO updateLabel(@PathVariable Long id, @RequestBody LabelUpdateDTO label) {
         return labelMapper.map(labelService.updateLabel(id, label.getName()));
     }
 

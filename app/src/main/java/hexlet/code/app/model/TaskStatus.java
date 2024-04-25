@@ -5,6 +5,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,13 +27,20 @@ public class TaskStatus implements UserDetails, BaseEntity {
     private Long id;
 
     @Column(nullable = false, unique = true)
+    @NotBlank(message = "Name is mandatory")
+    @Size(min = 1, message = "Name must be at least 1 character long")
     private String name;
 
     @Column(nullable = false, unique = true)
+    @NotBlank(message = "Slug is mandatory")
+    @Size(min = 1, message = "Slug must be at least 1 character long")
     private String slug;
 
     @Column(name = "created_at", nullable = false)
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "updated_at", nullable = false)
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
     public TaskStatus(String name, String slug) {
         this.name = name;

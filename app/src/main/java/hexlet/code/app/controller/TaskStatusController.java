@@ -1,9 +1,9 @@
 package hexlet.code.app.controller;
 
 import hexlet.code.app.dto.TaskStatusCreateDTO;
+import hexlet.code.app.dto.TaskStatusDTO;
 import hexlet.code.app.dto.TaskStatusUpdateDTO;
 import hexlet.code.app.mapper.TaskStatusMapper;
-import hexlet.code.app.model.TaskStatus;
 import hexlet.code.app.service.TaskStatusService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -31,29 +32,29 @@ public class TaskStatusController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TaskStatus> getTaskStatusById(@PathVariable Long id) {
-        TaskStatus taskStatus = taskStatusService.getTaskStatusById(id);
-        return ResponseEntity.ok(taskStatus);
+    public ResponseEntity<TaskStatusDTO> getTaskStatusById(@PathVariable Long id) {
+        var taskStatus = taskStatusService.getTaskStatusById(id);
+        return ResponseEntity.ok(taskStatusMapper.map(taskStatus));
     }
 
     @GetMapping
-    public ResponseEntity<List<TaskStatus>> getAllTaskStatuses() {
-        List<TaskStatus> taskStatuses = taskStatusService.getAllTaskStatuses();
-        return ResponseEntity.ok(taskStatuses);
+    public ResponseEntity<List<TaskStatusDTO>> getAllTaskStatuses() {
+        var taskStatuses = taskStatusService.getAllTaskStatuses();
+        return ResponseEntity.ok(Collections.singletonList((TaskStatusDTO) taskStatusMapper.map(taskStatuses)));
     }
 
     @PostMapping
-    public ResponseEntity<TaskStatus> createTaskStatus(@RequestBody TaskStatusCreateDTO taskStatus) {
-        TaskStatus createdTaskStatus = taskStatusService.createTaskStatus(taskStatusMapper.map(taskStatus));
-        return ResponseEntity.ok(createdTaskStatus);
+    public ResponseEntity<TaskStatusDTO> createTaskStatus(@RequestBody TaskStatusCreateDTO taskStatus) {
+        var createdTaskStatus = taskStatusService.createTaskStatus(taskStatus);
+        return ResponseEntity.ok(taskStatusMapper.map(createdTaskStatus));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TaskStatus> updateTaskStatus(@PathVariable Long id,
+    public ResponseEntity<TaskStatusDTO> updateTaskStatus(@PathVariable Long id,
                                                        @RequestBody TaskStatusUpdateDTO taskStatus) {
-        TaskStatus updatedTaskStatus = taskStatusService.updateTaskStatus(id, taskStatusMapper.map(taskStatus));
+        var updatedTaskStatus = taskStatusService.updateTaskStatus(id, taskStatus);
         taskStatusMapper.update(taskStatus, updatedTaskStatus);
-        return ResponseEntity.ok(updatedTaskStatus);
+        return ResponseEntity.ok(taskStatusMapper.map(updatedTaskStatus));
     }
 
     @DeleteMapping("/{id}")

@@ -1,26 +1,33 @@
 package hexlet.code.app.service;
 
+import hexlet.code.app.dto.LabelCreateDTO;
 import hexlet.code.app.model.Label;
 import hexlet.code.app.repository.LabelRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import hexlet.code.app.repository.TaskRepository;
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class LabelService {
-    @Autowired
-    private LabelRepository labelRepository;
+    private final LabelRepository labelRepository;
+    private final TaskRepository taskRepository;
+
+    public LabelService(LabelRepository labelRepository, TaskRepository taskRepository) {
+        this.labelRepository = labelRepository;
+        this.taskRepository = taskRepository;
+    }
+
 
     public List<Label> getAllLabels() {
         return labelRepository.findAll();
     }
 
-    public Label createLabel(String name) {
+    public Label createLabel(LabelCreateDTO labelCreateDTO) {
         Label label = new Label();
-        label.setName(name);
-        label.setCreatedAt(LocalDateTime.now());
+        label.setName(labelCreateDTO.getName());
         return labelRepository.save(label);
     }
 
@@ -30,8 +37,15 @@ public class LabelService {
         return labelRepository.save(label);
     }
 
-    public void deleteLabel(Long id) {
-        Label label = labelRepository.findById(id).orElseThrow();
+    @Transactional
+    public void deleteLabel(Long labelId) {
+        Label label = labelRepository.findById(labelId)
+                .orElseThrow(() -> new EntityNotFoundException("Label not found"));
+
+        if (!taskRepository.findByLabelsContains(label).isEmpty()) {
+            throw new IllegalStateException("Cannot delete label with assigned tasks");
+        }
+
         labelRepository.delete(label);
     }
 

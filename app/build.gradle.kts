@@ -29,6 +29,7 @@ application { mainClass.set("hexlet.code.app.AppApplication") }
 
 
 dependencies {
+    implementation("org.thymeleaf.extras:thymeleaf-extras-java8time:3.0.4.RELEASE")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.0")
     implementation("gg.jte:jte:3.1.9")
     implementation("org.springframework.boot:spring-boot-starter-security")

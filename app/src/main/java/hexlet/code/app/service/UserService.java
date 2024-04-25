@@ -1,7 +1,11 @@
 package hexlet.code.app.service;
 
+import hexlet.code.app.dto.UserCreateDTO;
+import hexlet.code.app.dto.UserUpdateDTO;
 import hexlet.code.app.model.User;
+import hexlet.code.app.repository.TaskRepository;
 import hexlet.code.app.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -11,15 +15,21 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final TaskRepository taskRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, TaskRepository taskRepository, PasswordEncoder passwordEncoder) {
         this.userRepository = userRepository;
+        this.taskRepository = taskRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
-    public User createUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+    public User createUser(UserCreateDTO dto) {
+        User user = new User();
+        user.setFirstName(dto.getFirstName());
+        user.setLastName(dto.getLastName());
+        user.setEmail(dto.getEmail());
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
         return userRepository.save(user);
     }
 
@@ -27,25 +37,35 @@ public class UserService {
         return userRepository.findById(id).orElse(null);
     }
 
+
+    public User getUserByEmail(String email) {
+        return userRepository.findByEmail(email).orElse(null);
+    }
+
     public List<User> getAllUsers() {
         return userRepository.findAll();
     }
 
-    public User updateUser(Long id, User user) {
-        User existingUser = getUserById(id);
-        if (existingUser != null) {
-            existingUser.setEmail(user.getEmail());
-            existingUser.setFirstName(user.getFirstName());
-            existingUser.setLastName(user.getLastName());
-            if (user.getPassword() != null) {
-                existingUser.setPassword(passwordEncoder.encode(user.getPassword()));
-            }
-            return userRepository.save(existingUser);
-        }
-        return null;
+    public User updateUser(Long id, UserUpdateDTO userData) {
+        return userRepository.findById(id)
+                .map(user -> {
+                    user.setEmail(userData.getEmail());
+                    if (userData.getPassword() != null && !userData.getPassword().isEmpty()) {
+                        user.setPassword(passwordEncoder.encode(userData.getPassword()));
+                    }
+                    return userRepository.save(user);
+                })
+                .orElse(null);
     }
 
-    public void deleteUser(Long id) {
-        userRepository.deleteById(id);
+    public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+
+        if (!taskRepository.findByAssignee(user).isEmpty()) {
+            throw new IllegalStateException("Cannot delete user with assigned tasks");
+        }
+
+        userRepository.delete(user);
     }
 }

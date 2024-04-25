@@ -1,5 +1,6 @@
 package hexlet.code.app.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -34,11 +35,12 @@ public class User implements UserDetails {
     private String lastName;
 
     @Column(unique = true)
-    @Email
+    @Email(message = "Email must be a well-formed email address")
     private String email;
 
-    @NotBlank
+    @NotBlank(message = "Password must be at least 3 characters long")
     @Size(min = 3, message = "Password must be at least 3 characters long")
+    @JsonIgnore
     private String password;
 
     @Column(name = "created_at", nullable = false, updatable = false)

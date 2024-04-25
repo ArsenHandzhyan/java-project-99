@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class AuthRequest {
+public class AuthRequest extends BasePage {
     private String username;
     private String password;
 }

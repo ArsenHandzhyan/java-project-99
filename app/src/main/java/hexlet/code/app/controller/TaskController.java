@@ -4,7 +4,9 @@ import hexlet.code.app.dto.TaskCreateDTO;
 import hexlet.code.app.dto.TaskDTO;
 import hexlet.code.app.dto.TaskUpdateDTO;
 import hexlet.code.app.mapper.TaskMapper;
+import hexlet.code.app.model.Task;
 import hexlet.code.app.service.TaskService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,8 +33,14 @@ public class TaskController {
     }
 
     @GetMapping
-    public List<TaskDTO> getAllTasks() {
-        return taskMapper.map(taskService.getAllTasks());
+    public ResponseEntity<List<TaskDTO>> getAllTasks() {
+        var tasks = taskService.getAllTasks();
+        List<TaskDTO> taskDTOs = taskMapper.map(tasks);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-Total-Count", String.valueOf(taskDTOs.size()));
+
+        return ResponseEntity.ok().headers(headers).body(taskDTOs);
     }
 
     @GetMapping("/{id}")
@@ -46,9 +54,9 @@ public class TaskController {
     }
 
     @PutMapping("/{id}")
-    public TaskDTO updateTask(@PathVariable Long id, @RequestBody TaskUpdateDTO taskDTO) {
-        var task = taskService.updateTask(id, taskDTO);
-        return  taskMapper.map(task);
+    public ResponseEntity<TaskDTO> updateTask(@PathVariable Long id, @RequestBody TaskUpdateDTO taskDTO) {
+        Task updatedTask = taskService.updateTask(id, taskDTO);
+        return ResponseEntity.ok(taskMapper.map(updatedTask));
     }
 
     @DeleteMapping("/{id}")

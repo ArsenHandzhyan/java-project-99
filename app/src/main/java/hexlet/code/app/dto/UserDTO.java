@@ -1,13 +1,15 @@
 package hexlet.code.app.dto;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
-public class UserDTO {
+public class UserDTO extends BasePage {
     private Long id;
     private String firstName;
     private String lastName;
@@ -15,4 +17,24 @@ public class UserDTO {
     private String password;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    /**
+     * Gets the flash message.
+     *
+     * @return the flash message
+     */
+    @Override
+    public String getFlash() {
+        return super.getFlash();
+    }
+
+    /**
+     * Sets the flash message.
+     *
+     * @param flash the flash message to set
+     */
+    @Override
+    public void setFlash(String flash) {
+        super.setFlash(flash);
+    }
 }
