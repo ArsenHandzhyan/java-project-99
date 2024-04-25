@@ -28,7 +28,7 @@ import jakarta.validation.constraints.Size;
 @Getter
 @Setter
 @AllArgsConstructor
-public class Task implements UserDetails, BaseEntity {
+public class Task implements UserDetails {
     @ManyToMany
     @JoinTable(
             name = "task_label",

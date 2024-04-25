@@ -20,9 +20,9 @@ import java.util.List;
         unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
 public interface TaskMapper {
-    TaskDTO map(TaskCreateDTO dto);
+    Task map(TaskCreateDTO dto);
 
-    TaskDTO map(TaskUpdateDTO dto);
+    Task map(TaskUpdateDTO dto);
 
     Task toEntity(TaskCreateDTO dto);
 

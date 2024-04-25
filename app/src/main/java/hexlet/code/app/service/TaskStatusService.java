@@ -2,11 +2,8 @@ package hexlet.code.app.service;
 
 import hexlet.code.app.dto.TaskStatusCreateDTO;
 import hexlet.code.app.dto.TaskStatusUpdateDTO;
-import hexlet.code.app.exeption.ResourceNotFoundException;
 import hexlet.code.app.model.TaskStatus;
-import hexlet.code.app.repository.TaskRepository;
 import hexlet.code.app.repository.TaskStatusRepository;
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -16,14 +13,18 @@ import java.util.List;
 public class TaskStatusService {
 
     private final TaskStatusRepository taskStatusRepository;
-    private final TaskRepository taskRepository;
 
-    public TaskStatusService(TaskStatusRepository taskStatusRepository, TaskRepository taskRepository) {
+    public TaskStatusService(TaskStatusRepository taskStatusRepository) {
         this.taskStatusRepository = taskStatusRepository;
-        this.taskRepository = taskRepository;
     }
 
     public TaskStatus createTaskStatus(TaskStatusCreateDTO taskStatusDTO) {
+        // Check if a TaskStatus with the same slug already exists
+        TaskStatus existingTaskStatus = taskStatusRepository.findBySlug(taskStatusDTO.getSlug());
+        if (existingTaskStatus != null) {
+            // Handle the case where a TaskStatus with the same slug already exists
+            throw new IllegalArgumentException("A TaskStatus with the slug " + taskStatusDTO.getSlug() + " already exists.");
+        }
         var taskStatus = new TaskStatus();
         taskStatus.setName(taskStatusDTO.getName());
         taskStatus.setSlug(taskStatusDTO.getSlug());
@@ -35,7 +36,7 @@ public class TaskStatusService {
     }
 
     public List<TaskStatus> getAllTaskStatuses() {
-        return taskStatusRepository.findAll();
+        return (List<TaskStatus>) taskStatusRepository.findAll();
     }
 
     public TaskStatus updateTaskStatus(Long id, TaskStatusUpdateDTO taskStatus) {
@@ -50,17 +51,6 @@ public class TaskStatusService {
 
     @Transactional
     public void deleteTaskStatus(Long taskStatusId) {
-        if (!taskStatusRepository.existsById(taskStatusId)) {
-            throw new ResourceNotFoundException("TaskStatus not found");
-        }
-
-        TaskStatus taskStatus = taskStatusRepository.findById(taskStatusId)
-                .orElseThrow(() -> new ResourceNotFoundException("TaskStatus not found"));
-
-        if (!taskRepository.findByTaskStatus(taskStatus).isEmpty()) {
-            throw new IllegalStateException("Cannot delete task status with assigned tasks");
-        }
-
-        taskStatusRepository.delete(taskStatus);
+        taskStatusRepository.deleteById(taskStatusId);
     }
 }

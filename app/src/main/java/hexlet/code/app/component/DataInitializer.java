@@ -70,6 +70,6 @@ public class DataInitializer implements ApplicationRunner {
         labels.add(labelService.getLabelByName("bug"));
         // Присвоим задаче администратора в качестве исполнителя
         initialTask.setAssignee(userService.getUserByEmail("hexlet@example.com"));
-        taskService.createTask(initialTask); // Создаем задачу
+        taskService.create(initialTask); // Создаем задачу
     }
 }

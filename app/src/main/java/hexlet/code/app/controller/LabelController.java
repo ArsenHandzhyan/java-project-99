@@ -5,7 +5,6 @@ import hexlet.code.app.dto.LabelDTO;
 import hexlet.code.app.dto.LabelUpdateDTO;
 import hexlet.code.app.mapper.LabelMapper;
 import hexlet.code.app.service.LabelService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,11 +21,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/labels")
 public class LabelController {
-    @Autowired
-    private LabelService labelService;
+    private final LabelService labelService;
 
-    @Autowired
-    private LabelMapper labelMapper;
+    private final LabelMapper labelMapper;
+
+    public LabelController(LabelService labelService, LabelMapper labelMapper) {
+        this.labelService = labelService;
+        this.labelMapper = labelMapper;
+    }
 
     @GetMapping("/{id}")
     public LabelDTO getLabelById(@PathVariable Long id) {
