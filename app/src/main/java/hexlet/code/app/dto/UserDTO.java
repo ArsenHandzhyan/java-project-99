@@ -18,6 +18,10 @@ public class UserDTO extends BasePage {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
+    public UserDTO() {
+
+    }
+
     /**
      * Gets the flash message.
      *

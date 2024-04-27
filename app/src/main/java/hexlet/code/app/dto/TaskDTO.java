@@ -19,6 +19,10 @@ public class TaskDTO extends BasePage {
     private User assigneeId;
     private LocalDateTime createdAt;
 
+    public TaskDTO() {
+
+    }
+
     /**
      * Gets the flash message.
      *

@@ -1,6 +1,5 @@
 package hexlet.code.app.config;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,10 +22,11 @@ import hexlet.code.app.component.RsaKeyProperties;
 @Configuration
 public class EncodersConfig {
 
-    @Qualifier("rsa-hexlet.code.app.component.RsaKeyProperties")
-    @Autowired
-    // Создается ниже
-    private RsaKeyProperties rsaKeys;
+    private final RsaKeyProperties rsaKeys;
+
+    public EncodersConfig(@Qualifier("rsa-hexlet.code.app.component.RsaKeyProperties") RsaKeyProperties rsaKeys) {
+        this.rsaKeys = rsaKeys;
+    }
 
     @Bean
     public PasswordEncoder passwordEncoder() {

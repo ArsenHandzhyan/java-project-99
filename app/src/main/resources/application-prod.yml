@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/your_database
+    driverClassName: org.postgresql.Driver
+    username: your_username
+    password: your_password
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml

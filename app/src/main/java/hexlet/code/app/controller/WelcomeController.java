@@ -1,5 +1,6 @@
 package hexlet.code.app.controller;
 
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,6 +10,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
+@CrossOrigin(exposedHeaders = "X-Total-Count")
 public class WelcomeController {
 
     @GetMapping("/welcome")

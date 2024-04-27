@@ -215,7 +215,9 @@ class AppApplicationTests {
         task.setCreatedAt(LocalDateTime.now());
         task.setAssignee(new User());
         taskService.create(task);
-        when(taskService.findById(1L)).thenReturn(taskMapper.toEntity(task));
+        Task taskMap = new Task();
+        taskMapper.map(task, taskMap);
+        when(taskService.findById(1L)).thenReturn(taskMap);
 
         mockMvc.perform(get("/api/tasks/1")
                         .header("Authorization", "Bearer " + token)

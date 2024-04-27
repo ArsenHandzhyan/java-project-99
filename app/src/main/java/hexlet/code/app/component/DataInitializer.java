@@ -9,28 +9,34 @@ import hexlet.code.app.service.LabelService;
 import hexlet.code.app.service.TaskService;
 import hexlet.code.app.service.TaskStatusService;
 import hexlet.code.app.service.UserService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 @Component
 public class DataInitializer implements ApplicationRunner {
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    private TaskStatusService taskStatusService;
+    private final TaskStatusService taskStatusService;
 
-    @Autowired
-    private LabelService labelService;
+    private final LabelService labelService;
 
-    @Autowired
-    private TaskService taskService;
+    private final TaskService taskService;
+
+    public DataInitializer(UserService userService,
+                           TaskStatusService taskStatusService,
+                           LabelService labelService,
+                           TaskService taskService) {
+        this.userService = userService;
+        this.taskStatusService = taskStatusService;
+        this.labelService = labelService;
+        this.taskService = taskService;
+    }
 
     @Override
     public void run(ApplicationArguments args) {
@@ -38,6 +44,7 @@ public class DataInitializer implements ApplicationRunner {
         UserCreateDTO admin = new UserCreateDTO();
         admin.setEmail("hexlet@example.com");
         admin.setPassword("qwerty");
+        admin.setCreatedAt(LocalDateTime.now());
         userService.createUser(admin);
 
         // Добавление дефолтных статусов задач
@@ -46,6 +53,7 @@ public class DataInitializer implements ApplicationRunner {
                     TaskStatusCreateDTO tasStatus = new TaskStatusCreateDTO("New", "new");
                     tasStatus.setName(statusName);
                     tasStatus.setSlug(statusName.toLowerCase().replace(" ", "_"));
+                    tasStatus.setCreatedAt(LocalDateTime.now());
                     taskStatusService.createTaskStatus(tasStatus);
                 });
 
@@ -54,6 +62,7 @@ public class DataInitializer implements ApplicationRunner {
                 .forEach(labelName -> {
                     LabelCreateDTO label = new LabelCreateDTO();
                     label.setName(labelName);
+                    label.setCreatedAt(LocalDateTime.now());
                     labelService.createLabel(label);
                 });
 

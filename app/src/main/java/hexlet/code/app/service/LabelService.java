@@ -8,6 +8,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -20,17 +21,18 @@ public class LabelService {
         this.taskRepository = taskRepository;
     }
 
-
+    @Transactional
     public List<Label> getAllLabels() {
         return (List<Label>) labelRepository.findAll();
     }
-
+    @Transactional
     public Label createLabel(LabelCreateDTO labelCreateDTO) {
         Label label = new Label();
         label.setName(labelCreateDTO.getName());
+        label.setUpdatedAt(LocalDateTime.now());
         return labelRepository.save(label);
     }
-
+    @Transactional
     public Label updateLabel(Long id, String name) {
         Label label = labelRepository.findById(id).orElseThrow();
         label.setName(name);
@@ -48,11 +50,11 @@ public class LabelService {
 
         labelRepository.delete(label);
     }
-
+    @Transactional
     public Label getLabelById(Long id) {
         return labelRepository.findById(id).orElseThrow();
     }
-
+    @Transactional
     public Label getLabelByName(String name) {
         return labelRepository.findByName(name);
     }

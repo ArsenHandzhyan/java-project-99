@@ -29,7 +29,10 @@ application { mainClass.set("hexlet.code.app.AppApplication") }
 
 
 dependencies {
-    implementation("org.thymeleaf.extras:thymeleaf-extras-java8time:3.0.4.RELEASE")
+
+    runtimeOnly("com.h2database:h2")
+    runtimeOnly("org.postgresql:postgresql")
+    implementation("org.liquibase:liquibase-core")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.0")
     implementation("gg.jte:jte:3.1.9")
     implementation("org.springframework.boot:spring-boot-starter-security")
@@ -44,7 +47,6 @@ dependencies {
     implementation("org.springframework.security:spring-security-crypto:6.2.1")
     implementation("org.openapitools:jackson-databind-nullable:0.2.6")
     implementation("net.datafaker:datafaker:2.0.2")
-    runtimeOnly("com.h2database:h2")
     implementation("org.projectlombok:lombok:1.18.32")
     annotationProcessor("org.projectlombok:lombok:1.18.32")
     implementation("org.springframework.boot:spring-boot-starter")

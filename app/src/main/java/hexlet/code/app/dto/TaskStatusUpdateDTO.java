@@ -3,6 +3,7 @@ package hexlet.code.app.dto;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.time.LocalDateTime;
 
@@ -10,17 +11,12 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 public class TaskStatusUpdateDTO extends BasePage {
-    private String name;
-    private String slug;
-    private LocalDateTime updatedAt;
+    private JsonNullable<String> name;
+    private JsonNullable<String> slug;
+    private JsonNullable<LocalDateTime> updatedAt;
 
-    // Constructor for name and slug only, assuming BasePage constructor is no-arg or compatible
     public TaskStatusUpdateDTO(String name, String slug) {
-        this.name = name;
-        this.slug = slug;
-    }
-
-    public TaskStatusUpdateDTO() {
+        super();
     }
 
     /**

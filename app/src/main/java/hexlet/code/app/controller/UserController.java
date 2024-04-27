@@ -7,8 +7,10 @@ import hexlet.code.app.mapper.UserMapper;
 import hexlet.code.app.model.User;
 import hexlet.code.app.service.UserService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,10 +21,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
+@CrossOrigin(exposedHeaders = "X-Total-Count")
 public class UserController {
 
     private final UserService userService;
@@ -35,32 +39,43 @@ public class UserController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
         User user = userService.getUserById(id);
-        return ResponseEntity.ok(user);
+        UserDTO userDTO = userMapper.map(user);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-Total-Count", String.valueOf("Users size is " + user.getFirstName()));
+        return ResponseEntity.ok(userDTO);
     }
 
     @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
         List<User> users = userService.getAllUsers();
-        return ResponseEntity.ok(users);
+        List<UserDTO> userDTO = userMapper.map(users);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-Total-Count", String.valueOf("Users size is " + users.size()));
+        return ResponseEntity.ok(userDTO);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<User> createUser(@RequestBody UserCreateDTO userData) {
-        var user = userService.getUserByEmail(userData.getEmail());
+    public ResponseEntity<UserDTO> createUser(@RequestBody UserCreateDTO userData) {
+        User user = userService.getUserByEmail(userData.getEmail());
+        UserDTO userDTO = userMapper.map(user);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-Total-Count", String.valueOf("fgh"));
         if (user == null) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(userService.createUser(userData));
+            return ResponseEntity.status(HttpStatus.CREATED).body(userDTO);
         }
-        return new ResponseEntity<>(user, HttpStatus.CONFLICT);
+        return new ResponseEntity<>(userDTO, HttpStatus.CONFLICT);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<UserDTO> updateUser(@RequestBody @Valid UserUpdateDTO userData, @PathVariable Long id) {
-        User user = userService.getUserById(id);
-        userService.updateUser(id, userData);
-        return ResponseEntity.ok(userMapper.map(user));
+        User update = userService.updateUser(id, userData);
+        UserDTO userDTO = userMapper.map(update);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-Total-Count", String.valueOf(userDTO.getFirstName()));
+        return ResponseEntity.ok(userDTO);
     }
 
     @DeleteMapping("/{id}")
