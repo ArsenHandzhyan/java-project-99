@@ -26,8 +26,7 @@ public class TaskService {
 
     @Transactional
     public Task create(TaskCreateDTO task) {
-        Task createTask = new Task();
-        taskMapper.map(task, createTask);
+        Task createTask =  taskMapper.map(task);
         createTask.setName(task.getName());
         createTask.setIndex(task.getIndex());
         createTask.setDescription(task.getDescription());

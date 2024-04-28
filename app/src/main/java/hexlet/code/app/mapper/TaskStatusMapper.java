@@ -6,7 +6,6 @@ import hexlet.code.app.dto.TaskStatusUpdateDTO;
 import hexlet.code.app.model.TaskStatus;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
-import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
@@ -24,8 +23,6 @@ public interface TaskStatusMapper {
     TaskStatusDTO map(TaskStatusUpdateDTO dto);
 
     TaskStatusDTO map(TaskStatus dto);
-
-    void update(TaskStatusUpdateDTO dto, @MappingTarget TaskStatus model);
 
     List<TaskStatusDTO> map(List<TaskStatus> taskStatuses); // Изменено на List<TaskStatusDTO>
 }

@@ -7,7 +7,6 @@ import hexlet.code.app.mapper.UserMapper;
 import hexlet.code.app.model.User;
 import hexlet.code.app.service.UserService;
 import jakarta.validation.Valid;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -18,11 +17,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/users")
@@ -40,8 +38,8 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
-        User user = userService.getUserById(id);
-        UserDTO userDTO = userMapper.map(user);
+        Optional<User> user = userService.getUserById(id);
+        UserDTO userDTO = userMapper.map(user.orElse(null));
         return ResponseEntity.ok(userDTO);
     }
 
@@ -53,14 +51,14 @@ public class UserController {
     }
 
     @PostMapping
-    @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<UserDTO> createUser(@RequestBody UserCreateDTO userData) {
-        User user = userService.getUserByEmail(userData.getEmail());
-        UserDTO userDTO = userMapper.map(user);
-        if (user == null) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(userDTO);
+    public ResponseEntity<UserDTO> createUser(@RequestBody @Valid UserCreateDTO userData) {
+        User existingUser = userService.getUserByEmail(userData.getEmail());
+        if (existingUser != null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
-        return new ResponseEntity<>(userDTO, HttpStatus.CONFLICT);
+        Optional<User> createdUser = userService.createUser(userData);
+        UserDTO userDTO = userMapper.map(createdUser.orElse(null));
+        return new ResponseEntity<>(userDTO, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")

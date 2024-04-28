@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -22,17 +23,9 @@ public class TaskStatusService {
 
     @Transactional
     public TaskStatus createTaskStatus(TaskStatusCreateDTO taskStatusDTO) {
-        // Check if a TaskStatus with the same slug already exists
-        TaskStatus existingTaskStatus = taskStatusRepository.findBySlug(taskStatusDTO.getSlug());
-        if (existingTaskStatus != null) {
-            // Handle the case where a TaskStatus with the same slug already exists
-            throw new IllegalArgumentException("A TaskStatus with the slug "
-                    + taskStatusDTO.getSlug() + " already exists.");
-        }
         var taskStatus = new TaskStatus();
         taskStatus.setName(taskStatusDTO.getName());
         taskStatus.setSlug(taskStatusDTO.getSlug());
-        taskStatus.setUpdatedAt(LocalDateTime.now());
         return taskStatusRepository.save(taskStatus);
     }
 
@@ -46,19 +39,24 @@ public class TaskStatusService {
         return (List<TaskStatus>) taskStatusRepository.findAll();
     }
     @Transactional
-    public Set<TaskStatus> getTaskStatusByName(String name) {
+    public Optional<TaskStatus> getTaskStatusByName(String name) {
         return taskStatusRepository.findByName(name);
     }
 
+    public Set<TaskStatus> getBySlug(String slug) {
+        return taskStatusRepository.findBySlug(slug);
+    }
+
     @Transactional
-    public TaskStatus updateTaskStatus(Long id, TaskStatusUpdateDTO taskStatus) {
-        TaskStatus existingTaskStatus = getTaskStatusById(id);
-        if (existingTaskStatus != null) {
-            existingTaskStatus.setName(String.valueOf(taskStatus.getName()));
-            existingTaskStatus.setSlug(String.valueOf(taskStatus.getSlug()));
-            return taskStatusRepository.save(existingTaskStatus);
-        }
-        return null;
+    public TaskStatus updateTaskStatus(Long id, TaskStatusUpdateDTO taskStatusUpdateDTO) {
+        return taskStatusRepository.findById(id)
+                .map(updateTaskStatus -> {
+                    updateTaskStatus.setName(String.valueOf(taskStatusUpdateDTO.getName()));
+                    updateTaskStatus.setSlug(String.valueOf(taskStatusUpdateDTO.getSlug()));
+                    updateTaskStatus.setUpdatedAt(LocalDateTime.now());
+                    return taskStatusRepository.save(updateTaskStatus);
+                })
+                .orElseThrow(() -> new RuntimeException("Task not found"));
     }
 
     @Transactional

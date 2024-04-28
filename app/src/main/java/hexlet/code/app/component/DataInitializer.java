@@ -5,8 +5,6 @@ import hexlet.code.app.dto.TaskCreateDTO;
 import hexlet.code.app.dto.TaskStatusCreateDTO;
 import hexlet.code.app.dto.UserCreateDTO;
 import hexlet.code.app.model.Label;
-import hexlet.code.app.model.TaskStatus;
-import hexlet.code.app.model.User;
 import hexlet.code.app.service.LabelService;
 import hexlet.code.app.service.TaskService;
 import hexlet.code.app.service.TaskStatusService;
@@ -23,7 +21,7 @@ import java.util.Set;
 
 @Component
 public class DataInitializer implements ApplicationRunner {
-    private static final Logger log = LoggerFactory.getLogger(DataInitializer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DataInitializer.class);
 
     private final UserService userService;
     private final TaskStatusService taskStatusService;
@@ -42,7 +40,7 @@ public class DataInitializer implements ApplicationRunner {
 
     @Override
     public void run(ApplicationArguments args) {
-        log.info("Starting data initialization...");
+        LOGGER.info("Starting data initialization...");
 
         try {
             // Создание администратора системы, если он еще не создан
@@ -52,16 +50,17 @@ public class DataInitializer implements ApplicationRunner {
                 admin.setEmail(adminEmail);
                 admin.setPassword("qwerty");
                 userService.createUser(admin);
-                log.info("Admin user created");
+                LOGGER.info("Admin user created");
             }
 
             // Добавление дефолтных статусов задач
             Arrays.asList("Draft", "ToReview", "ToBeFixed", "ToPublish", "Published")
                     .forEach(statusName -> {
-                        if (taskStatusService.getTaskStatusByName(statusName) == null) {
-                            TaskStatusCreateDTO taskStatus = new TaskStatusCreateDTO(statusName, statusName.toLowerCase().replace(" ", "_"));
+                        if (taskStatusService.getTaskStatusByName(statusName).isEmpty()) {
+                            TaskStatusCreateDTO taskStatus = new TaskStatusCreateDTO(statusName,
+                                    statusName.toLowerCase().replace(" ", "_"));
                             taskStatusService.createTaskStatus(taskStatus);
-                            log.info("Task status '{}' created", statusName);
+                            LOGGER.info("Task status '{}' created", statusName);
                         }
                     });
 
@@ -72,28 +71,28 @@ public class DataInitializer implements ApplicationRunner {
                             LabelCreateDTO label = new LabelCreateDTO();
                             label.setName(labelName);
                             labelService.createLabel(label);
-                            log.info("Label '{}' created", labelName);
+                            LOGGER.info("Label '{}' created", labelName);
                         }
                     });
 
             // Создание дефолтных задач
-            if (taskService.getTaskByName("Initial Task")) {
+            if (!taskService.getTaskByName("Initial Task")) { // Используйте ! для проверки на отсутствие
                 TaskCreateDTO initialTask = new TaskCreateDTO();
                 initialTask.setName("Initial Task");
                 initialTask.setIndex(1);
                 initialTask.setDescription("This is an initial task created at application startup.");
-//                initialTask.setTaskStatus(taskStatusService.getTaskStatusByName("Draft"));
+                initialTask.setTaskStatus("Draft"); // Установите статус задачи напрямую
                 Set<Label> labels = new HashSet<>();
                 labels.add(labelService.getLabelByName("feature"));
                 labels.add(labelService.getLabelByName("bug"));
                 initialTask.setAssignee(userService.getUserByEmail(adminEmail));
                 taskService.create(initialTask);
-                log.info("Initial task created");
+                LOGGER.info("Initial task created");
             }
         } catch (Exception e) {
-            log.error("Error during data initialization: {}", e.getMessage(), e);
+            LOGGER.error("Error during data initialization: {}", e.getMessage(), e);
         }
 
-        log.info("Data initialization completed successfully.");
+        LOGGER.info("Data initialization completed successfully.");
     }
 }

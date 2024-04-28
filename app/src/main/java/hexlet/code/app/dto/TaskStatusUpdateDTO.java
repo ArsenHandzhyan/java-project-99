@@ -1,7 +1,7 @@
 package hexlet.code.app.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.openapitools.jackson.nullable.JsonNullable;
 
@@ -9,15 +9,11 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@AllArgsConstructor
+@NoArgsConstructor  // Lombok annotation to generate a default constructor
 public class TaskStatusUpdateDTO extends BasePage {
     private JsonNullable<String> name;
     private JsonNullable<String> slug;
     private JsonNullable<LocalDateTime> updatedAt;
-
-    public TaskStatusUpdateDTO(String name, String slug) {
-        super();
-    }
 
     /**
      * Gets the flash message.

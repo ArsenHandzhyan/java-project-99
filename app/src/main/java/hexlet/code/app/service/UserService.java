@@ -13,6 +13,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -22,30 +23,38 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
 
-    public UserService(UserRepository userRepository, TaskRepository taskRepository, PasswordEncoder passwordEncoder, UserMapper userMapper) {
+    public UserService(UserRepository userRepository,
+                       TaskRepository taskRepository,
+                       PasswordEncoder passwordEncoder,
+                       UserMapper userMapper) {
         this.userRepository = userRepository;
         this.taskRepository = taskRepository;
         this.passwordEncoder = passwordEncoder;
         this.userMapper = userMapper;
     }
+
     @Transactional
-    public User createUser(UserCreateDTO dto) {
+    public Optional<User> createUser(UserCreateDTO dto) {
         User user = userMapper.map(dto);
-        return userRepository.save(user);
+        user.setPassword(passwordEncoder.encode(dto.getPassword())); // Хеширование пароля
+        return Optional.of(userRepository.save(user));
     }
+
     @Transactional
-    public User getUserById(Long id) {
-        return userRepository.findById(id).orElse(null);
+    public Optional<User> getUserById(Long id) {
+        return userRepository.findById(id);
     }
 
     @Transactional
     public User getUserByEmail(String email) {
         return userRepository.findByEmail(email).orElse(null);
     }
+
     @Transactional
     public List<User> getAllUsers() {
         return (List<User>) userRepository.findAll();
     }
+
     @Transactional
     public User updateUser(Long id, @Valid UserUpdateDTO userData) {
         return userRepository.findById(id)
@@ -58,6 +67,7 @@ public class UserService {
                 })
                 .orElse(null);
     }
+
     @Transactional
     public void deleteUser(Long userId) {
         User user = userRepository.findById(userId)

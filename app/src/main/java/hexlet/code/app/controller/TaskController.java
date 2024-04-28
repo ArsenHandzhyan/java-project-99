@@ -6,7 +6,6 @@ import hexlet.code.app.dto.TaskUpdateDTO;
 import hexlet.code.app.mapper.TaskMapper;
 import hexlet.code.app.model.Task;
 import hexlet.code.app.service.TaskService;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -37,30 +35,26 @@ public class TaskController {
     @GetMapping
     public ResponseEntity<List<TaskDTO>> getAllTasks() {
         List<Task> tasks = taskService.findAll();
-        List<TaskDTO> taskDTO = new ArrayList<>();
-        taskMapper.map(taskDTO, tasks);
+        List<TaskDTO> taskDTO = taskMapper.map(tasks);
         return ResponseEntity.ok().body(taskDTO);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<TaskDTO> getTaskById(@PathVariable Long id) {
-        TaskDTO taskDTO = new TaskDTO();
-        taskMapper.map(taskDTO, taskService.findById(id));
+        TaskDTO taskDTO = taskMapper.map(taskService.findById(id));
         return ResponseEntity.ok().body(taskDTO);
     }
 
     @PostMapping
     public ResponseEntity<TaskDTO> createTask(@RequestBody TaskCreateDTO taskCreateDTO) {
-        TaskDTO taskDTO = new TaskDTO();
-        taskMapper.map(taskDTO, taskService.create(taskCreateDTO));
+        TaskDTO taskDTO = taskMapper.map(taskService.create(taskCreateDTO));
         return ResponseEntity.ok().body(taskDTO);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<TaskDTO> updateTask(@PathVariable Long id, @RequestBody TaskUpdateDTO taskUpdateDTO) {
-        TaskDTO taskDTO = new TaskDTO();
         Task update = taskService.update(id, taskUpdateDTO);
-        taskMapper.map(taskDTO, update);
+        TaskDTO taskDTO = taskMapper.map(update);
         return ResponseEntity.ok().body(taskDTO);
     }
 
