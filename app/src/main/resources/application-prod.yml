@@ -2,8 +2,8 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/your_database
     driverClassName: org.postgresql.Driver
-    username: your_username
-    password: your_password
+    username: new_postgresql_for_javalin_user
+    password: GvGwspqIZhAYD3HDJjbP9QP51RSh5yf9
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     show-sql: true
@@ -11,3 +11,5 @@ spring:
       ddl-auto: update
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
+
+spring.jpa.open-in-view: false

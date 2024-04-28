@@ -3,7 +3,20 @@ spring:
     group:
       dev: h2
       prod: postgres
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
 
 rsa:
   private-key: classpath:certs/private.pem
   public-key: classpath:certs/public.pem
+
+logging:
+  level:
+    org:
+      springframework:
+        web: DEBUG
+        boot:
+          autoconfigure:
+            web: DEBUG

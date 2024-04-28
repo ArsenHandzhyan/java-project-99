@@ -36,40 +36,32 @@ public class TaskController {
 
     @GetMapping
     public ResponseEntity<List<TaskDTO>> getAllTasks() {
-        var tasks = taskService.findAll();
+        List<Task> tasks = taskService.findAll();
         List<TaskDTO> taskDTO = new ArrayList<>();
         taskMapper.map(taskDTO, tasks);
-
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("X-Total-Count", String.valueOf(taskDTO.size()));
-
-        return ResponseEntity.ok().headers(headers).body(taskDTO);
+        return ResponseEntity.ok().body(taskDTO);
     }
 
     @GetMapping("/{id}")
-    public TaskDTO getTaskById(@PathVariable Long id) {
+    public ResponseEntity<TaskDTO> getTaskById(@PathVariable Long id) {
         TaskDTO taskDTO = new TaskDTO();
         taskMapper.map(taskDTO, taskService.findById(id));
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("X-Total-Count", String.valueOf(taskDTO.getName()));
-        return taskDTO;
+        return ResponseEntity.ok().body(taskDTO);
     }
 
     @PostMapping
-    public TaskDTO createTask(@RequestBody TaskCreateDTO taskCreateDTO) {
+    public ResponseEntity<TaskDTO> createTask(@RequestBody TaskCreateDTO taskCreateDTO) {
         TaskDTO taskDTO = new TaskDTO();
         taskMapper.map(taskDTO, taskService.create(taskCreateDTO));
-        return taskDTO;
+        return ResponseEntity.ok().body(taskDTO);
     }
 
     @PutMapping("/{id}")
-    public TaskDTO updateTask(@PathVariable Long id, @RequestBody TaskUpdateDTO taskUpdateDTO) {
+    public ResponseEntity<TaskDTO> updateTask(@PathVariable Long id, @RequestBody TaskUpdateDTO taskUpdateDTO) {
         TaskDTO taskDTO = new TaskDTO();
         Task update = taskService.update(id, taskUpdateDTO);
         taskMapper.map(taskDTO, update);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("X-Total-Count", String.valueOf(taskDTO.getName()));
-        return taskDTO;
+        return ResponseEntity.ok().body(taskDTO);
     }
 
     @DeleteMapping("/{id}")

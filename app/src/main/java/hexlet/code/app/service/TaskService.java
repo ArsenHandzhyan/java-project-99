@@ -67,4 +67,8 @@ public class TaskService {
     public void delete(Long id) {
         taskRepository.deleteById(id);
     }
+
+    public boolean getTaskByName(String initialTask) {
+        return taskRepository.findByName(initialTask).isPresent();
+    }
 }

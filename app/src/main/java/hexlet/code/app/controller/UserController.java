@@ -42,8 +42,6 @@ public class UserController {
     public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
         User user = userService.getUserById(id);
         UserDTO userDTO = userMapper.map(user);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("X-Total-Count", String.valueOf("Users size is " + user.getFirstName()));
         return ResponseEntity.ok(userDTO);
     }
 
@@ -51,8 +49,6 @@ public class UserController {
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         List<User> users = userService.getAllUsers();
         List<UserDTO> userDTO = userMapper.map(users);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("X-Total-Count", String.valueOf("Users size is " + users.size()));
         return ResponseEntity.ok(userDTO);
     }
 
@@ -61,8 +57,6 @@ public class UserController {
     public ResponseEntity<UserDTO> createUser(@RequestBody UserCreateDTO userData) {
         User user = userService.getUserByEmail(userData.getEmail());
         UserDTO userDTO = userMapper.map(user);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("X-Total-Count", String.valueOf("fgh"));
         if (user == null) {
             return ResponseEntity.status(HttpStatus.CREATED).body(userDTO);
         }
@@ -73,8 +67,6 @@ public class UserController {
     public ResponseEntity<UserDTO> updateUser(@RequestBody @Valid UserUpdateDTO userData, @PathVariable Long id) {
         User update = userService.updateUser(id, userData);
         UserDTO userDTO = userMapper.map(update);
-        HttpHeaders headers = new HttpHeaders();
-        headers.add("X-Total-Count", String.valueOf(userDTO.getFirstName()));
         return ResponseEntity.ok(userDTO);
     }
 

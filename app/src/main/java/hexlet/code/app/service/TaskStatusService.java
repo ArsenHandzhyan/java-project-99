@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class TaskStatusService {
@@ -43,6 +44,10 @@ public class TaskStatusService {
     @Transactional
     public List<TaskStatus> getAllTaskStatuses() {
         return (List<TaskStatus>) taskStatusRepository.findAll();
+    }
+    @Transactional
+    public Set<TaskStatus> getTaskStatusByName(String name) {
+        return taskStatusRepository.findByName(name);
     }
 
     @Transactional
