@@ -7,17 +7,10 @@ import hexlet.code.app.mapper.TaskMapper;
 import hexlet.code.app.model.Task;
 import hexlet.code.app.service.TaskService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -33,10 +26,14 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TaskDTO>> getAllTasks() {
-        List<Task> tasks = taskService.findAll();
-        List<TaskDTO> taskDTO = taskMapper.map(tasks);
-        return ResponseEntity.ok().body(taskDTO);
+    public ResponseEntity<List<TaskDTO>> getAllTasks(
+            @RequestParam(required = false) String titleCont,
+            @RequestParam(required = false) Long assigneeId,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) Long labelId) {
+        List<Task> tasks = taskService.findTasks(titleCont, assigneeId, status, labelId);
+        List<TaskDTO> taskDTOs = tasks.stream().map(taskMapper::map).collect(Collectors.toList());
+        return ResponseEntity.ok().body(taskDTOs);
     }
 
     @GetMapping("/{id}")

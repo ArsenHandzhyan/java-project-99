@@ -29,7 +29,7 @@ application { mainClass.set("hexlet.code.app.AppApplication") }
 
 
 dependencies {
-
+    implementation("jakarta.persistence:jakarta.persistence-api")
     runtimeOnly("com.h2database:h2")
     runtimeOnly("org.postgresql:postgresql")
     implementation("org.liquibase:liquibase-core")

@@ -1,12 +1,38 @@
 spring:
   profiles:
-    group:
-      dev: h2
-      prod: postgres
+    active: prod # Set default profile ./gradlew bootRun --args='--spring.profiles.active=dev'
+                 # or --spring.profiles.active=prod
+
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: update
+
+  datasource:
+    driverClassName: org.h2.Driver
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password:
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+  datasource:
+    driverClassName: org.postgresql.Driver
+    url: jdbc:postgresql://dpg-cmuok6acn0vc73akdjfg-a.oregon-postgres.render.com:5432/new_postgresql_for_javalin
+    username: new_postgresql_for_javalin_user
+    password: GvGwspqIZhAYD3HDJjbP9QP51RSh5yf9
+
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
 
 rsa:
   private-key: classpath:certs/private.pem
