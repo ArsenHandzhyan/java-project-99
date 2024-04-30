@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class TaskPresenceDTO extends UserDTO {
+public class TaskPresenceDTO {
     private Long id;
     private Integer index;
     private String name;

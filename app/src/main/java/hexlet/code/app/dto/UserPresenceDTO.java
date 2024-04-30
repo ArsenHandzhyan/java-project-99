@@ -13,6 +13,7 @@ public class UserPresenceDTO {
     private Presence password;
     private Presence encryptedPassword;
     private String createdAt;
+    private String updateAt;
 
     @Getter
     @Setter

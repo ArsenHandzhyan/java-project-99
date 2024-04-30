@@ -1,7 +1,6 @@
 package hexlet.code.app.controller;
 
 import hexlet.code.app.dto.UserCreateDTO;
-import hexlet.code.app.dto.UserDTO;
 import hexlet.code.app.dto.UserPresenceDTO;
 import hexlet.code.app.dto.UserUpdateDTO;
 import hexlet.code.app.mapper.UserMapper;
@@ -42,9 +41,9 @@ public class UserController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserPresenceDTO> getUserById(@PathVariable Long id) {
         Optional<User> user = userService.getUserById(id);
-        UserDTO userDTO = userMapper.mapToUserDTO(user.orElse(null));
+        UserPresenceDTO userDTO = userMapper.map(user.orElse(null));
         return ResponseEntity.ok(userDTO);
     }
 
@@ -59,20 +58,20 @@ public class UserController {
 
 
     @PostMapping
-    public ResponseEntity<UserDTO> createUser(@RequestBody @Valid UserCreateDTO userData) {
+    public ResponseEntity<UserPresenceDTO> createUser(@RequestBody @Valid UserCreateDTO userData) {
         User existingUser = userService.getUserByEmail(userData.getEmail());
         if (existingUser != null) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
         Optional<User> createdUser = userService.createUser(userData);
-        UserDTO userDTO = userMapper.mapUserToUserDTO(createdUser.orElse(null));
+        UserPresenceDTO userDTO = userMapper.map(createdUser.orElse(null));
         return new ResponseEntity<>(userDTO, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDTO> updateUser(@RequestBody @Valid UserUpdateDTO userData, @PathVariable Long id) {
+    public ResponseEntity<UserPresenceDTO> updateUser(@RequestBody @Valid UserUpdateDTO userData, @PathVariable Long id) {
         User update = userService.updateUser(id, userData);
-        UserDTO userDTO = userMapper.mapUserToUserDTO(update);
+        UserPresenceDTO userDTO = userMapper.map(update);
         return ResponseEntity.ok(userDTO);
     }
 

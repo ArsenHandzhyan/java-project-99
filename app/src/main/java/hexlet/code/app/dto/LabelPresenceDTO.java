@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class LabelPresenceDTO extends UserDTO {
+public class LabelPresenceDTO {
     private Long id;
     private String name;
     private LocalDateTime createdAt;
