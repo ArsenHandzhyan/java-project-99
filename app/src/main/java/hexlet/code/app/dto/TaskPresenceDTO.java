@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class TaskDTO {
+public class TaskPresenceDTO extends UserDTO {
     private Long id;
     private Integer index;
     private String name;
@@ -16,4 +16,15 @@ public class TaskDTO {
     private String taskStatus;
     private User assigneeId;
     private LocalDateTime createdAt;
+
+    @Getter
+    @Setter
+    public static class Presence {
+        private boolean present;
+
+        public Presence(boolean present) {
+            this.present = present;
+        }
+
+    }
 }

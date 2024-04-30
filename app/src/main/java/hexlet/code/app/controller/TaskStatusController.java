@@ -6,6 +6,7 @@ import hexlet.code.app.dto.TaskStatusUpdateDTO;
 import hexlet.code.app.mapper.TaskStatusMapper;
 import hexlet.code.app.model.TaskStatus;
 import hexlet.code.app.service.TaskStatusService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -50,7 +51,9 @@ public class TaskStatusController {
         List<TaskStatusDTO> taskStatusDTOs = taskStatuses.stream()
                 .map(taskStatusMapper::map)
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(taskStatusDTOs);
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set("X-Total-Count", String.valueOf(taskStatuses.size()));
+        return ResponseEntity.ok().headers(responseHeaders).body(taskStatusDTOs);
     }
 
     @PreAuthorize("isAuthenticated()")

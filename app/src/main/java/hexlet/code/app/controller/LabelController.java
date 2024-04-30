@@ -4,7 +4,9 @@ import hexlet.code.app.dto.LabelCreateDTO;
 import hexlet.code.app.dto.LabelDTO;
 import hexlet.code.app.dto.LabelUpdateDTO;
 import hexlet.code.app.mapper.LabelMapper;
+import hexlet.code.app.model.Label;
 import hexlet.code.app.service.LabelService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -38,8 +40,12 @@ public class LabelController {
     }
 
     @GetMapping
-    public List<LabelDTO> getAllLabels() {
-        return labelMapper.map(labelService.getAllLabels());
+    public ResponseEntity<List<LabelDTO>> getAllLabels() {
+        List<Label> labels = labelService.getAllLabels();
+        List<LabelDTO> labelDTO = labelMapper.map(labels);
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set("X-Total-Count", String.valueOf(labels.size()));
+        return ResponseEntity.ok().headers(responseHeaders).body(labelDTO);
     }
 
     @PreAuthorize("isAuthenticated()")

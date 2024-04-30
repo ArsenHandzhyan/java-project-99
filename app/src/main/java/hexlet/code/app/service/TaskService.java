@@ -40,7 +40,6 @@ public class TaskService {
         createTask.setTaskStatus(task.getTaskStatus());
         createTask.setAssignee(task.getAssignee());
         createTask.setCreatedAt(LocalDateTime.now());
-        createTask.setUpdatedAt(LocalDateTime.now());
         return taskRepository.save(createTask);
     }
 
@@ -63,7 +62,7 @@ public class TaskService {
                     updateTask.setDescription(task.getDescription());
                     updateTask.setTaskStatus(task.getTaskStatus());
                     updateTask.setAssignee(task.getAssignee());
-                    updateTask.setCreatedAt(LocalDateTime.now());
+                    updateTask.setUpdatedAt(LocalDateTime.now());
                     return taskRepository.save(updateTask);
                 })
                 .orElseThrow(() -> new RuntimeException("Task not found"));

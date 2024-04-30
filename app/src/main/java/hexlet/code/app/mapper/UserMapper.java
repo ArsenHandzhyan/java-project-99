@@ -2,6 +2,7 @@ package hexlet.code.app.mapper;
 
 import hexlet.code.app.dto.UserCreateDTO;
 import hexlet.code.app.dto.UserDTO;
+import hexlet.code.app.dto.UserPresenceDTO;
 import hexlet.code.app.model.User;
 import org.mapstruct.Mapper;
 import org.mapstruct.MappingConstants;
@@ -12,7 +13,7 @@ import java.util.List;
 
 @Mapper(
         // Подключение JsonNullableMapper
-        uses = { JsonNullableMapper.class },
+        uses = {JsonNullableMapper.class},
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
         componentModel = MappingConstants.ComponentModel.SPRING,
         unmappedTargetPolicy = ReportingPolicy.IGNORE
@@ -23,5 +24,5 @@ public interface UserMapper {
 
     User map(UserCreateDTO user);
 
-    List<UserDTO> map(List<User> users);
+    List<UserPresenceDTO> map(List<User> users);
 }

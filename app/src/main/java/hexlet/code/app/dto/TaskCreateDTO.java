@@ -8,31 +8,11 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class TaskCreateDTO extends BasePage {
+public class TaskCreateDTO {
     private String name;
     private Integer index;
     private String description;
     private String taskStatus;
     private LocalDateTime createdAt;
     private User assignee;
-
-    /**
-     * Gets the flash message.
-     *
-     * @return the flash message
-     */
-    @Override
-    public String getFlash() {
-        return super.getFlash();
-    }
-
-    /**
-     * Sets the flash message.
-     *
-     * @param flash the flash message to set
-     */
-    @Override
-    public void setFlash(String flash) {
-        super.setFlash(flash);
-    }
 }

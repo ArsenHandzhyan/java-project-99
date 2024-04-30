@@ -2,11 +2,14 @@ package hexlet.code.app.controller;
 
 import hexlet.code.app.dto.UserCreateDTO;
 import hexlet.code.app.dto.UserDTO;
+import hexlet.code.app.dto.UserPresenceDTO;
 import hexlet.code.app.dto.UserUpdateDTO;
 import hexlet.code.app.mapper.UserMapper;
 import hexlet.code.app.model.User;
+import hexlet.code.app.repository.UserRepository;
 import hexlet.code.app.service.UserService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -29,10 +32,12 @@ public class UserController {
 
     private final UserService userService;
     private final UserMapper userMapper;
+    private final UserRepository userRepository;
 
-    public UserController(UserService userService, UserMapper userMapper) {
+    public UserController(UserService userService, UserMapper userMapper, UserRepository userRepository) {
         this.userService = userService;
         this.userMapper = userMapper;
+        this.userRepository = userRepository;
     }
 
 
@@ -44,11 +49,14 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UserDTO>> getAllUsers() {
+    public ResponseEntity<List<UserPresenceDTO>> getAllUsers() {
         List<User> users = userService.getAllUsers();
-        List<UserDTO> userDTO = userMapper.map(users);
-        return ResponseEntity.ok(userDTO);
+        List<UserPresenceDTO> userPresenceDTOs = userMapper.map((List<User>) userRepository.findAll());
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set("X-Total-Count", String.valueOf(users.size()));
+        return ResponseEntity.ok().headers(responseHeaders).body(userPresenceDTOs);
     }
+
 
     @PostMapping
     public ResponseEntity<UserDTO> createUser(@RequestBody @Valid UserCreateDTO userData) {
