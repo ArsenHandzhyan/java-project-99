@@ -3,9 +3,13 @@ package hexlet.code.app.mapper;
 import hexlet.code.app.dto.TaskCreateDTO;
 import hexlet.code.app.dto.TaskDTO;
 import hexlet.code.app.dto.TaskPresenceDTO;
-import hexlet.code.app.dto.TaskStatusPresenceDTO;
 import hexlet.code.app.model.Task;
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
+import org.mapstruct.Named;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
 
@@ -20,7 +24,6 @@ public interface TaskMapper {
     @Mapping(target = "description", source = "description", qualifiedByName = "mapPresence")
     @Mapping(target = "taskStatus", source = "taskStatus", qualifiedByName = "mapPresence")
     @Mapping(target = "assigneeId", source = "assigneeId", qualifiedByName = "mapPresence")
-
     TaskPresenceDTO map(Task task);
 
     Task map(TaskCreateDTO taskCreateDTO);

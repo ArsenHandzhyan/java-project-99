@@ -3,7 +3,12 @@ package hexlet.code.app.mapper;
 import hexlet.code.app.dto.UserCreateDTO;
 import hexlet.code.app.dto.UserPresenceDTO;
 import hexlet.code.app.model.User;
-import org.mapstruct.*;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.MappingConstants;
+import org.mapstruct.Named;
+import org.mapstruct.NullValuePropertyMappingStrategy;
+import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
 
