@@ -44,7 +44,7 @@ public class UserController {
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
         Optional<User> user = userService.getUserById(id);
-        UserDTO userDTO = userMapper.map(user.orElse(null));
+        UserDTO userDTO = userMapper.mapToUserDTO(user.orElse(null));
         return ResponseEntity.ok(userDTO);
     }
 
@@ -65,14 +65,14 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
         Optional<User> createdUser = userService.createUser(userData);
-        UserDTO userDTO = userMapper.map(createdUser.orElse(null));
+        UserDTO userDTO = userMapper.mapUserToUserDTO(createdUser.orElse(null));
         return new ResponseEntity<>(userDTO, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<UserDTO> updateUser(@RequestBody @Valid UserUpdateDTO userData, @PathVariable Long id) {
         User update = userService.updateUser(id, userData);
-        UserDTO userDTO = userMapper.map(update);
+        UserDTO userDTO = userMapper.mapUserToUserDTO(update);
         return ResponseEntity.ok(userDTO);
     }
 

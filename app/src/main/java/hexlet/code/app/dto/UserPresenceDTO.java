@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UserPresenceDTO extends UserDTO {
+public class UserPresenceDTO {
     private Long id;
     private Presence email;
     private Presence firstName;
@@ -22,6 +22,5 @@ public class UserPresenceDTO extends UserDTO {
         public Presence(boolean present) {
             this.present = present;
         }
-
     }
 }
