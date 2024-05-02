@@ -10,6 +10,7 @@ plugins {
     id("io.freefair.lombok") version "8.4"
     id("jacoco")
     checkstyle
+    id("io.sentry.jvm.gradle") version "4.5.1"
 }
 
 group = "hexlet.code"
@@ -29,7 +30,7 @@ application { mainClass.set("hexlet.code.app.AppApplication") }
 
 
 dependencies {
-
+    implementation("jakarta.persistence:jakarta.persistence-api")
     runtimeOnly("com.h2database:h2")
     runtimeOnly("org.postgresql:postgresql")
     implementation("org.liquibase:liquibase-core")
