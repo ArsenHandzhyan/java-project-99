@@ -1,7 +1,7 @@
 package hexlet.code.app.controller;
 
 import hexlet.code.app.dto.LabelCreateDTO;
-import hexlet.code.app.dto.LabelDTO;
+import hexlet.code.app.dto.LabelPresenceDTO;
 import hexlet.code.app.dto.LabelUpdateDTO;
 import hexlet.code.app.mapper.LabelMapper;
 import hexlet.code.app.model.Label;
@@ -35,14 +35,14 @@ public class LabelController {
     }
 
     @GetMapping("/{id}")
-    public LabelDTO getLabelById(@PathVariable Long id) {
+    public LabelPresenceDTO getLabelById(@PathVariable Long id) {
         return labelMapper.map(labelService.getLabelById(id));
     }
 
     @GetMapping
-    public ResponseEntity<List<LabelDTO>> getAllLabels() {
+    public ResponseEntity<List<LabelPresenceDTO>> getAllLabels() {
         List<Label> labels = labelService.getAllLabels();
-        List<LabelDTO> labelDTO = labelMapper.map(labels);
+        List<LabelPresenceDTO> labelDTO = labelMapper.map(labels);
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set("X-Total-Count", String.valueOf(labels.size()));
         return ResponseEntity.ok().headers(responseHeaders).body(labelDTO);
@@ -50,13 +50,13 @@ public class LabelController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping
-    public LabelDTO createLabel(@RequestBody LabelCreateDTO label) {
+    public LabelPresenceDTO createLabel(@RequestBody LabelCreateDTO label) {
         return labelMapper.map(labelService.createLabel(label));
     }
 
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
-    public LabelDTO updateLabel(@PathVariable Long id, @RequestBody LabelUpdateDTO label) {
+    public LabelPresenceDTO updateLabel(@PathVariable Long id, @RequestBody LabelUpdateDTO label) {
         return labelMapper.map(labelService.updateLabel(id, label.getName()));
     }
 
