@@ -1,11 +1,12 @@
 package hexlet.code.app.controller;
 
 import hexlet.code.app.dto.TaskStatusCreateDTO;
-import hexlet.code.app.dto.TaskStatusDTO;
+import hexlet.code.app.dto.TaskStatusPresenceDTO;
 import hexlet.code.app.dto.TaskStatusUpdateDTO;
 import hexlet.code.app.mapper.TaskStatusMapper;
 import hexlet.code.app.model.TaskStatus;
 import hexlet.code.app.service.TaskStatusService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -39,37 +40,39 @@ public class TaskStatusController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
-    public ResponseEntity<TaskStatusDTO> getTaskStatusById(@PathVariable Long id) {
+    public ResponseEntity<TaskStatusPresenceDTO> getTaskStatusById(@PathVariable Long id) {
         var taskStatus = taskStatusService.getTaskStatusById(id);
         return ResponseEntity.ok(taskStatusMapper.map(taskStatus));
     }
 
     @GetMapping
-    public ResponseEntity<List<TaskStatusDTO>> getAllTaskStatuses() {
+    public ResponseEntity<List<TaskStatusPresenceDTO>> getAllTaskStatuses() {
         List<TaskStatus> taskStatuses = taskStatusService.getAllTaskStatuses();
-        List<TaskStatusDTO> taskStatusDTOs = taskStatuses.stream()
+        List<TaskStatusPresenceDTO> taskStatusDTOs = taskStatuses.stream()
                 .map(taskStatusMapper::map)
                 .collect(Collectors.toList());
-        return ResponseEntity.ok(taskStatusDTOs);
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set("X-Total-Count", String.valueOf(taskStatuses.size()));
+        return ResponseEntity.ok().headers(responseHeaders).body(taskStatusDTOs);
     }
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping
-    public ResponseEntity<TaskStatusDTO> createTaskStatus(@RequestBody TaskStatusCreateDTO taskStatusDTO) {
+    public ResponseEntity<TaskStatusPresenceDTO> createTaskStatus(@RequestBody TaskStatusCreateDTO taskStatusDTO) {
         Optional<TaskStatus> taskStatusByName = taskStatusService.getTaskStatusByName(taskStatusDTO.getName());
         if (taskStatusByName.isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
         TaskStatus createdTaskStatus = taskStatusService.createTaskStatus(taskStatusDTO);
-        TaskStatusDTO responseTaskStatusDTO = taskStatusMapper.map(createdTaskStatus);
+        TaskStatusPresenceDTO responseTaskStatusDTO = taskStatusMapper.map(createdTaskStatus);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseTaskStatusDTO);
     }
 
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
-    public ResponseEntity<TaskStatusDTO> updateTaskStatus(@PathVariable Long id,
+    public ResponseEntity<TaskStatusPresenceDTO> updateTaskStatus(@PathVariable Long id,
                                                           @RequestBody TaskStatusUpdateDTO taskStatus) {
-        TaskStatusDTO taskStatusDTO = taskStatusMapper.map(taskStatusService.updateTaskStatus(id, taskStatus));
+        TaskStatusPresenceDTO taskStatusDTO = taskStatusMapper.map(taskStatusService.updateTaskStatus(id, taskStatus));
         return ResponseEntity.ok(taskStatusDTO);
     }
 

@@ -10,7 +10,10 @@ public class WebConfig implements WebMvcConfigurer {
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOrigins("http://localhost:8080")
-                .exposedHeaders("X-Total-Count");
+                .allowedOrigins("http://localhost:8080") // Указывайте здесь актуальные домены для вашего приложения
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("Authorization", "Content-Type") // Указание разрешенных заголовков
+                .exposedHeaders("X-Total-Count") // Убедитесь, что этот заголовок указан для поддержки пагинации
+                .allowCredentials(true);
     }
 }

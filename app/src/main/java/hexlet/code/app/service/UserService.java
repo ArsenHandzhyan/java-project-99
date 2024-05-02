@@ -12,6 +12,7 @@ import jakarta.validation.Valid;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,7 +37,8 @@ public class UserService {
     @Transactional
     public Optional<User> createUser(UserCreateDTO dto) {
         User user = userMapper.map(dto);
-        user.setPassword(passwordEncoder.encode(dto.getPassword())); // Хеширование пароля
+        user.setPassword(passwordEncoder.encode(dto.getPassword()));
+        user.setCreatedAt(LocalDateTime.now());
         return Optional.of(userRepository.save(user));
     }
 
@@ -60,6 +62,7 @@ public class UserService {
         return userRepository.findById(id)
                 .map(user -> {
                     user.setEmail(userData.getEmail());
+                    user.setUpdatedAt(LocalDateTime.now());
                     if (userData.getPassword() != null && !userData.getPassword().isEmpty()) {
                         user.setPassword(passwordEncoder.encode(userData.getPassword()));
                     }

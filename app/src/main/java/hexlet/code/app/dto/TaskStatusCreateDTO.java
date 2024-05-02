@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @RequiredArgsConstructor(onConstructor = @__(@JsonCreator))
-public class TaskStatusCreateDTO extends BasePage {
+public class TaskStatusCreateDTO {
     private String name;
     private String slug;
     private LocalDateTime createdAt;
@@ -19,25 +19,5 @@ public class TaskStatusCreateDTO extends BasePage {
     public TaskStatusCreateDTO(String name, String slug) {
         this.name = name;
         this.slug = slug;
-    }
-
-    /**
-     * Gets the flash message.
-     *
-     * @return the flash message
-     */
-    @Override
-    public String getFlash() {
-        return super.getFlash();
-    }
-
-    /**
-     * Sets the flash message.
-     *
-     * @param flash the flash message to set
-     */
-    @Override
-    public void setFlash(String flash) {
-        super.setFlash(flash);
     }
 }

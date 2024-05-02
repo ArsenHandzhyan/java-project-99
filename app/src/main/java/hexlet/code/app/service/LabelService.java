@@ -29,13 +29,14 @@ public class LabelService {
     public Label createLabel(LabelCreateDTO labelCreateDTO) {
         Label label = new Label();
         label.setName(labelCreateDTO.getName());
-        label.setUpdatedAt(LocalDateTime.now());
+        label.setCreatedAt(LocalDateTime.now());
         return labelRepository.save(label);
     }
     @Transactional
     public Label updateLabel(Long id, String name) {
         Label label = labelRepository.findById(id).orElseThrow();
         label.setName(name);
+        label.setUpdatedAt(LocalDateTime.now());
         return labelRepository.save(label);
     }
 

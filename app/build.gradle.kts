@@ -28,6 +28,12 @@ repositories {
 
 application { mainClass.set("hexlet.code.app.AppApplication") }
 
+sentry {
+    includeSourceContext = true
+    org = "spring-m1"
+    projectName = "java-project-99"
+    authToken = System.getenv("SENTRY_AUTH_TOKEN")
+}
 
 dependencies {
     implementation("jakarta.persistence:jakarta.persistence-api")
