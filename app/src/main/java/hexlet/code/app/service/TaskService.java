@@ -5,8 +5,10 @@ import hexlet.code.app.dto.TaskUpdateDTO;
 import hexlet.code.app.mapper.TaskMapper;
 import hexlet.code.app.model.Task;
 import hexlet.code.app.repository.TaskRepository;
+import hexlet.code.app.specification.TaskSpecification;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -24,6 +26,11 @@ public class TaskService {
         this.taskMapper = taskMapper;
     }
 
+    public List<Task> findTasks(String titleCont, Long assigneeId, String status, Long labelId) {
+        Specification<Task> spec = TaskSpecification.getTasksByFilter(titleCont, assigneeId, status, labelId);
+        return taskRepository.findAll(spec);
+    }
+
     @Transactional
     public Task create(TaskCreateDTO task) {
         Task createTask =  taskMapper.map(task);
@@ -33,7 +40,6 @@ public class TaskService {
         createTask.setTaskStatus(task.getTaskStatus());
         createTask.setAssignee(task.getAssignee());
         createTask.setCreatedAt(LocalDateTime.now());
-        createTask.setUpdatedAt(LocalDateTime.now());
         return taskRepository.save(createTask);
     }
 
@@ -56,7 +62,7 @@ public class TaskService {
                     updateTask.setDescription(task.getDescription());
                     updateTask.setTaskStatus(task.getTaskStatus());
                     updateTask.setAssignee(task.getAssignee());
-                    updateTask.setCreatedAt(LocalDateTime.now());
+                    updateTask.setUpdatedAt(LocalDateTime.now());
                     return taskRepository.save(updateTask);
                 })
                 .orElseThrow(() -> new RuntimeException("Task not found"));

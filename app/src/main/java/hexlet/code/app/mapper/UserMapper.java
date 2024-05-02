@@ -1,27 +1,31 @@
 package hexlet.code.app.mapper;
 
 import hexlet.code.app.dto.UserCreateDTO;
-import hexlet.code.app.dto.UserDTO;
+import hexlet.code.app.dto.UserPresenceDTO;
 import hexlet.code.app.model.User;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingConstants;
-import org.mapstruct.NullValuePropertyMappingStrategy;
-import org.mapstruct.ReportingPolicy;
+import org.mapstruct.*;
 
 import java.util.List;
 
-@Mapper(
-        // Подключение JsonNullableMapper
-        uses = { JsonNullableMapper.class },
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
+        uses = {},
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
-        componentModel = MappingConstants.ComponentModel.SPRING,
         unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
-public interface UserMapper {
+public abstract class UserMapper {
+    @Mapping(target = "email", source = "email", qualifiedByName = "mapPresence")
+    @Mapping(target = "firstName", source = "firstName", qualifiedByName = "mapPresence")
+    @Mapping(target = "lastName", source = "lastName", qualifiedByName = "mapPresence")
+    @Mapping(target = "password", source = "password", qualifiedByName = "mapPresence")
+    @Mapping(target = "encryptedPassword", source = "password", qualifiedByName = "mapPresence")
+    public abstract UserPresenceDTO map(User user);
 
-    UserDTO map(User user);
+    public abstract List<UserPresenceDTO> map(List<User> users);
 
-    User map(UserCreateDTO user);
+    abstract User map(UserCreateDTO user);
 
-    List<UserDTO> map(List<User> users);
+    @Named("mapPresence")
+    UserPresenceDTO.Presence mapPresence(String value) {
+        return new UserPresenceDTO.Presence(value != null);
+    }
 }

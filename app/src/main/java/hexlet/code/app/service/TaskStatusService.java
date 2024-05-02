@@ -26,6 +26,7 @@ public class TaskStatusService {
         var taskStatus = new TaskStatus();
         taskStatus.setName(taskStatusDTO.getName());
         taskStatus.setSlug(taskStatusDTO.getSlug());
+        taskStatus.setCreatedAt(LocalDateTime.now());
         return taskStatusRepository.save(taskStatus);
     }
 

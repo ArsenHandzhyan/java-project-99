@@ -1,11 +1,12 @@
 package hexlet.code.app.controller;
 
 import hexlet.code.app.dto.TaskCreateDTO;
-import hexlet.code.app.dto.TaskDTO;
+import hexlet.code.app.dto.TaskPresenceDTO;
 import hexlet.code.app.dto.TaskUpdateDTO;
 import hexlet.code.app.mapper.TaskMapper;
 import hexlet.code.app.model.Task;
 import hexlet.code.app.service.TaskService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -15,9 +16,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/tasks")
@@ -33,28 +36,34 @@ public class TaskController {
     }
 
     @GetMapping
-    public ResponseEntity<List<TaskDTO>> getAllTasks() {
-        List<Task> tasks = taskService.findAll();
-        List<TaskDTO> taskDTO = taskMapper.map(tasks);
-        return ResponseEntity.ok().body(taskDTO);
+    public ResponseEntity<List<TaskPresenceDTO>> getAllTasks(
+            @RequestParam(required = false) String titleCont,
+            @RequestParam(required = false) Long assigneeId,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) Long labelId) {
+        List<Task> tasks = taskService.findTasks(titleCont, assigneeId, status, labelId);
+        List<TaskPresenceDTO> taskDTOs = tasks.stream().map(taskMapper::map).collect(Collectors.toList());
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set("X-Total-Count", String.valueOf(tasks.size()));
+        return ResponseEntity.ok().headers(responseHeaders).body(taskDTOs);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TaskDTO> getTaskById(@PathVariable Long id) {
-        TaskDTO taskDTO = taskMapper.map(taskService.findById(id));
+    public ResponseEntity<TaskPresenceDTO> getTaskById(@PathVariable Long id) {
+        TaskPresenceDTO taskDTO = taskMapper.map(taskService.findById(id));
         return ResponseEntity.ok().body(taskDTO);
     }
 
     @PostMapping
-    public ResponseEntity<TaskDTO> createTask(@RequestBody TaskCreateDTO taskCreateDTO) {
-        TaskDTO taskDTO = taskMapper.map(taskService.create(taskCreateDTO));
+    public ResponseEntity<TaskPresenceDTO> createTask(@RequestBody TaskCreateDTO taskCreateDTO) {
+        TaskPresenceDTO taskDTO = taskMapper.map(taskService.create(taskCreateDTO));
         return ResponseEntity.ok().body(taskDTO);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TaskDTO> updateTask(@PathVariable Long id, @RequestBody TaskUpdateDTO taskUpdateDTO) {
+    public ResponseEntity<TaskPresenceDTO> updateTask(@PathVariable Long id, @RequestBody TaskUpdateDTO taskUpdateDTO) {
         Task update = taskService.update(id, taskUpdateDTO);
-        TaskDTO taskDTO = taskMapper.map(update);
+        TaskPresenceDTO taskDTO = taskMapper.map(update);
         return ResponseEntity.ok().body(taskDTO);
     }
 

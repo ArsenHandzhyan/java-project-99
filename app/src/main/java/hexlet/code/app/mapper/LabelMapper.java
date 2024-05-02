@@ -1,31 +1,30 @@
 package hexlet.code.app.mapper;
 
 import hexlet.code.app.dto.LabelCreateDTO;
-import hexlet.code.app.dto.LabelDTO;
+import hexlet.code.app.dto.LabelPresenceDTO;
 import hexlet.code.app.dto.LabelUpdateDTO;
+import hexlet.code.app.dto.UserPresenceDTO;
 import hexlet.code.app.model.Label;
-import org.mapstruct.Mapper;
-import org.mapstruct.MappingConstants;
-import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
-import org.mapstruct.ReportingPolicy;
+import org.mapstruct.*;
 
 import java.util.List;
 
-@Mapper(
-        uses = { JsonNullableMapper.class },
+@Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
+        uses = {},
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
-        componentModel = MappingConstants.ComponentModel.SPRING,
         unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
-public interface LabelMapper {
-    LabelDTO map(LabelCreateDTO dto);
+public abstract class LabelMapper {
+    @Mapping(target = "name", source = "name", qualifiedByName = "mapPresence")
+    public abstract LabelPresenceDTO map(Label label);
 
-    LabelDTO map(LabelUpdateDTO dto);
+    abstract LabelPresenceDTO map(LabelCreateDTO dto);
 
-    void update(LabelUpdateDTO dto, @MappingTarget Label model);
+    abstract LabelPresenceDTO map(LabelUpdateDTO dto);
 
-    List<LabelDTO> map(List<Label> allLabels);
+    public abstract List<LabelPresenceDTO> map(List<Label> dto);
 
-    LabelDTO map(Label labelById);
-}
+    @Named("mapPresence")
+    UserPresenceDTO.Presence mapPresence(String value) {
+        return new UserPresenceDTO.Presence(value != null);
+    }}
