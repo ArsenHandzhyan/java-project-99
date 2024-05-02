@@ -10,6 +10,7 @@ plugins {
     id("io.freefair.lombok") version "8.4"
     id("jacoco")
     checkstyle
+    id("io.sentry.jvm.gradle") version "4.5.1"
 }
 
 group = "hexlet.code"
@@ -27,6 +28,12 @@ repositories {
 
 application { mainClass.set("hexlet.code.app.AppApplication") }
 
+sentry {
+    includeSourceContext = true
+    org = "spring-m1"
+    projectName = "java-project-99"
+    authToken = System.getenv("SENTRY_AUTH_TOKEN")
+}
 
 dependencies {
 
