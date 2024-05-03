@@ -36,6 +36,7 @@ sentry {
 }
 
 dependencies {
+    implementation("org.openapitools:jackson-databind-nullable:0.2.6")
     implementation("jakarta.persistence:jakarta.persistence-api")
     runtimeOnly("com.h2database:h2")
     runtimeOnly("org.postgresql:postgresql")

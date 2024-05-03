@@ -1,18 +1,22 @@
 package hexlet.code.app.dto;
 
 import hexlet.code.app.model.User;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
 public class TaskUpdateDTO {
-    private String name;
-    private Integer index;
-    private String description;
-    private String taskStatus;
+    @NotNull
+    private JsonNullable<String> name;
+    private JsonNullable<Integer> index;
+    private JsonNullable<String> description;
+    @NotNull
+    private JsonNullable<String> taskStatus;
     private LocalDateTime updatedAt;
-    private User assignee;
+    private JsonNullable<User> assignee;
 }
