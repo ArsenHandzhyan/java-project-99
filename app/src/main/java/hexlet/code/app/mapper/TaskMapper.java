@@ -1,37 +1,29 @@
 package hexlet.code.app.mapper;
 
 import hexlet.code.app.dto.TaskCreateDTO;
-import hexlet.code.app.dto.TaskPresenceDTO;
-import hexlet.code.app.dto.UserPresenceDTO;
+import hexlet.code.app.dto.TaskDTO;
+import hexlet.code.app.dto.TaskUpdateDTO;
 import hexlet.code.app.model.Task;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.MappingConstants;
-import org.mapstruct.Named;
 import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 
 import java.util.List;
 
-@Mapper(componentModel = MappingConstants.ComponentModel.SPRING,
-        uses = {},
+@Mapper(
+        // Подключение JsonNullableMapper
+        uses = {JsonNullableMapper.class},
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+        componentModel = MappingConstants.ComponentModel.SPRING,
         unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
 public abstract class TaskMapper {
-    @Mapping(target = "index", source = "index", qualifiedByName = "mapPresence")
-    @Mapping(target = "name", source = "name", qualifiedByName = "mapPresence")
-    @Mapping(target = "description", source = "description", qualifiedByName = "mapPresence")
-    @Mapping(target = "taskStatus", source = "taskStatus", qualifiedByName = "mapPresence")
-    @Mapping(target = "assignee", source = "assignee", qualifiedByName = "mapPresence")
-    public abstract TaskPresenceDTO map(Task task);
+    public abstract TaskDTO map(Task task);
 
-    abstract Task map(TaskCreateDTO taskCreateDTO);
+    public abstract Task map(TaskCreateDTO taskCreateDTO);
 
-    abstract List<TaskPresenceDTO> map(List<Task> tasks);
+    public abstract Task map(TaskUpdateDTO taskCreateDTO);
 
-    @Named("mapPresence")
-    UserPresenceDTO.Presence mapPresence(String value) {
-        return new UserPresenceDTO.Presence(value != null);
-    }
+    public abstract List<TaskDTO> map(List<Task> tasks);
 }

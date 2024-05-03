@@ -1,7 +1,7 @@
 package hexlet.code.app.controller;
 
 import hexlet.code.app.dto.UserCreateDTO;
-import hexlet.code.app.dto.UserPresenceDTO;
+import hexlet.code.app.dto.UserDTO;
 import hexlet.code.app.dto.UserUpdateDTO;
 import hexlet.code.app.mapper.UserMapper;
 import hexlet.code.app.model.User;
@@ -41,16 +41,16 @@ public class UserController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserPresenceDTO> getUserById(@PathVariable Long id) {
+    public ResponseEntity<UserDTO> getUserById(@PathVariable Long id) {
         Optional<User> user = userService.getUserById(id);
-        UserPresenceDTO userDTO = userMapper.map(user.orElse(null));
+        UserDTO userDTO = userMapper.map(user.orElse(null));
         return ResponseEntity.ok(userDTO);
     }
 
     @GetMapping
-    public ResponseEntity<List<UserPresenceDTO>> getAllUsers() {
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
         List<User> users = userService.getAllUsers();
-        List<UserPresenceDTO> userPresenceDTOs = userMapper.map((List<User>) userRepository.findAll());
+        List<UserDTO> userPresenceDTOs = userMapper.map((List<User>) userRepository.findAll());
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set("X-Total-Count", String.valueOf(users.size()));
         return ResponseEntity.ok().headers(responseHeaders).body(userPresenceDTOs);
@@ -58,20 +58,20 @@ public class UserController {
 
 
     @PostMapping
-    public ResponseEntity<UserPresenceDTO> createUser(@RequestBody @Valid UserCreateDTO userData) {
+    public ResponseEntity<UserDTO> createUser(@RequestBody @Valid UserCreateDTO userData) {
         User existingUser = userService.getUserByEmail(userData.getEmail());
         if (existingUser != null) {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
         Optional<User> createdUser = userService.createUser(userData);
-        UserPresenceDTO userDTO = userMapper.map(createdUser.orElse(null));
+        UserDTO userDTO = userMapper.map(createdUser.orElse(null));
         return new ResponseEntity<>(userDTO, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserPresenceDTO> updateUser(@RequestBody @Valid UserUpdateDTO userData, @PathVariable Long id) {
+    public ResponseEntity<UserDTO> updateUser(@RequestBody @Valid UserUpdateDTO userData, @PathVariable Long id) {
         User update = userService.updateUser(id, userData);
-        UserPresenceDTO userDTO = userMapper.map(update);
+        UserDTO userDTO = userMapper.map(update);
         return ResponseEntity.ok(userDTO);
     }
 

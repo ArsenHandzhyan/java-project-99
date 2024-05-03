@@ -2,6 +2,7 @@ package hexlet.code.app.service;
 
 import hexlet.code.app.dto.TaskCreateDTO;
 import hexlet.code.app.dto.TaskUpdateDTO;
+import hexlet.code.app.exeption.ResourceNotFoundException;
 import hexlet.code.app.mapper.TaskMapper;
 import hexlet.code.app.model.Task;
 import hexlet.code.app.repository.TaskRepository;
@@ -33,12 +34,7 @@ public class TaskService {
 
     @Transactional
     public Task create(TaskCreateDTO task) {
-        Task createTask =  taskMapper.map(task);
-        createTask.setName(task.getName());
-        createTask.setIndex(task.getIndex());
-        createTask.setDescription(task.getDescription());
-        createTask.setTaskStatus(task.getTaskStatus());
-        createTask.setAssignee(task.getAssignee());
+        Task createTask = taskMapper.map(task);
         createTask.setCreatedAt(LocalDateTime.now());
         return taskRepository.save(createTask);
     }
@@ -50,22 +46,20 @@ public class TaskService {
 
     @Transactional
     public Task findById(Long id) {
-        return taskRepository.findById(id).orElseThrow();
+        return taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found for id " + id));
     }
 
     @Transactional
     public Task update(Long id, TaskUpdateDTO task) {
         return taskRepository.findById(id)
                 .map(updateTask -> {
-                    updateTask.setName(task.getName());
+                    updateTask.setName(String.valueOf(task.getName()));
                     updateTask.setIndex(task.getIndex());
-                    updateTask.setDescription(task.getDescription());
-                    updateTask.setTaskStatus(task.getTaskStatus());
-                    updateTask.setAssignee(task.getAssignee());
                     updateTask.setUpdatedAt(LocalDateTime.now());
                     return taskRepository.save(updateTask);
                 })
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found for id " + id));
     }
 
     @Transactional

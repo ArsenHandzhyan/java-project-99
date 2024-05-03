@@ -1,14 +1,14 @@
 package hexlet.code.app.dto;
 
 import hexlet.code.app.model.User;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
-@Getter
-@Setter
-public class TaskPresenceDTO {
+@Data
+@AllArgsConstructor
+public class TaskDTO {
     private Long id;
     private Integer index;
     private String name;
@@ -16,15 +16,4 @@ public class TaskPresenceDTO {
     private String taskStatus;
     private User assigneeId;
     private LocalDateTime createdAt;
-
-    @Getter
-    @Setter
-    public static class Presence {
-        private boolean present;
-
-        public Presence(boolean present) {
-            this.present = present;
-        }
-
-    }
 }

@@ -1,7 +1,7 @@
 package hexlet.code.app.controller;
 
 import hexlet.code.app.dto.TaskStatusCreateDTO;
-import hexlet.code.app.dto.TaskStatusPresenceDTO;
+import hexlet.code.app.dto.TaskStatusDTO;
 import hexlet.code.app.dto.TaskStatusUpdateDTO;
 import hexlet.code.app.mapper.TaskStatusMapper;
 import hexlet.code.app.model.TaskStatus;
@@ -40,15 +40,15 @@ public class TaskStatusController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
-    public ResponseEntity<TaskStatusPresenceDTO> getTaskStatusById(@PathVariable Long id) {
+    public ResponseEntity<TaskStatusDTO> getTaskStatusById(@PathVariable Long id) {
         var taskStatus = taskStatusService.getTaskStatusById(id);
         return ResponseEntity.ok(taskStatusMapper.map(taskStatus));
     }
 
     @GetMapping
-    public ResponseEntity<List<TaskStatusPresenceDTO>> getAllTaskStatuses() {
+    public ResponseEntity<List<TaskStatusDTO>> getAllTaskStatuses() {
         List<TaskStatus> taskStatuses = taskStatusService.getAllTaskStatuses();
-        List<TaskStatusPresenceDTO> taskStatusDTOs = taskStatuses.stream()
+        List<TaskStatusDTO> taskStatusDTOs = taskStatuses.stream()
                 .map(taskStatusMapper::map)
                 .collect(Collectors.toList());
         HttpHeaders responseHeaders = new HttpHeaders();
@@ -58,21 +58,23 @@ public class TaskStatusController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping
-    public ResponseEntity<TaskStatusPresenceDTO> createTaskStatus(@RequestBody TaskStatusCreateDTO taskStatusDTO) {
+    public ResponseEntity<TaskStatusDTO> createTaskStatus(@RequestBody TaskStatusCreateDTO taskStatusDTO) {
         Optional<TaskStatus> taskStatusByName = taskStatusService.getTaskStatusByName(taskStatusDTO.getName());
-        if (taskStatusByName.isPresent()) {
-            return ResponseEntity.status(HttpStatus.CONFLICT).build();
-        }
+        if (taskStatusByName.isPresent())
+            if (taskStatusByName.get().getTasks().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).build();
+            }
         TaskStatus createdTaskStatus = taskStatusService.createTaskStatus(taskStatusDTO);
-        TaskStatusPresenceDTO responseTaskStatusDTO = taskStatusMapper.map(createdTaskStatus);
+        TaskStatusDTO responseTaskStatusDTO = taskStatusMapper.map(createdTaskStatus);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseTaskStatusDTO);
     }
 
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
-    public ResponseEntity<TaskStatusPresenceDTO> updateTaskStatus(@PathVariable Long id,
+    public ResponseEntity<TaskStatusDTO> updateTaskStatus(@PathVariable Long id,
                                                           @RequestBody TaskStatusUpdateDTO taskStatus) {
-        TaskStatusPresenceDTO taskStatusDTO = taskStatusMapper.map(taskStatusService.updateTaskStatus(id, taskStatus));
+        TaskStatus taskStatus1 = taskStatusService.updateTaskStatus(id, taskStatus);
+        TaskStatusDTO taskStatusDTO = taskStatusMapper.map(taskStatus1);
         return ResponseEntity.ok(taskStatusDTO);
     }
 

@@ -2,6 +2,7 @@ package hexlet.code.app.service;
 
 import hexlet.code.app.dto.UserCreateDTO;
 import hexlet.code.app.dto.UserUpdateDTO;
+import hexlet.code.app.exeption.ResourceNotFoundException;
 import hexlet.code.app.mapper.UserMapper;
 import hexlet.code.app.model.User;
 import hexlet.code.app.repository.TaskRepository;
@@ -68,7 +69,7 @@ public class UserService {
                     }
                     return userRepository.save(user);
                 })
-                .orElse(null);
+                .orElseThrow(() -> new ResourceNotFoundException("User not found" + id));
     }
 
     @Transactional
