@@ -14,6 +14,6 @@ public class TaskDTO {
     private String name;
     private String description;
     private String taskStatus;
-    private User assigneeId;
+    private User assignee;
     private LocalDateTime createdAt;
 }

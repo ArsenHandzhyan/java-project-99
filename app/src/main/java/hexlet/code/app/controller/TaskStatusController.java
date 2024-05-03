@@ -60,10 +60,11 @@ public class TaskStatusController {
     @PostMapping
     public ResponseEntity<TaskStatusDTO> createTaskStatus(@RequestBody TaskStatusCreateDTO taskStatusDTO) {
         Optional<TaskStatus> taskStatusByName = taskStatusService.getTaskStatusByName(taskStatusDTO.getName());
-        if (taskStatusByName.isPresent())
+        if (taskStatusByName.isPresent()) {
             if (taskStatusByName.get().getTasks().isEmpty()) {
                 return ResponseEntity.status(HttpStatus.CONFLICT).build();
             }
+        }
         TaskStatus createdTaskStatus = taskStatusService.createTaskStatus(taskStatusDTO);
         TaskStatusDTO responseTaskStatusDTO = taskStatusMapper.map(createdTaskStatus);
         return ResponseEntity.status(HttpStatus.CREATED).body(responseTaskStatusDTO);

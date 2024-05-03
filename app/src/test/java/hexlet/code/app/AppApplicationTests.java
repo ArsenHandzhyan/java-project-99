@@ -16,6 +16,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,9 +39,8 @@ import static org.mockito.Mockito.doNothing;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 
 @SpringBootTest
@@ -230,12 +230,12 @@ class AppApplicationTests {
     }
 
     @Test
-    public void getAllTasksTest() throws Exception {
+    void getAllTasks() throws Exception {
         Task task1 = new Task();
         task1.setId(1L);
         task1.setName("Task 1");
-        task1.setIndex(3140);
-        task1.setDescription("Description of task 1");
+        task1.setIndex(1);
+        task1.setDescription("Description 1");
         task1.setTaskStatus("to_be_fixed");
         task1.setCreatedAt(LocalDateTime.now());
         task1.setAssignee(new User());
@@ -243,23 +243,46 @@ class AppApplicationTests {
         Task task2 = new Task();
         task2.setId(2L);
         task2.setName("Task 2");
-        task2.setIndex(3161);
-        task2.setDescription("Description of task 2");
+        task2.setIndex(2);
+        task2.setDescription("Description 2");
         task2.setTaskStatus("to_review");
         task2.setCreatedAt(LocalDateTime.now());
         task2.setAssignee(new User());
 
-        when(taskService.findAll()).thenReturn(List.of(task1, task2));
+        when(taskService.findTasks(any(), any(), any(), any())).thenReturn(List.of(task1, task2));
 
         mockMvc.perform(get("/api/tasks")
                         .header("Authorization", "Bearer " + token)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
+                .andExpect(header().string("X-Total-Count", "2"))
                 .andExpect(jsonPath("$", hasSize(2)))
                 .andExpect(jsonPath("$[0].id").value(1))
                 .andExpect(jsonPath("$[0].name").value("Task 1"))
+                .andExpect(jsonPath("$[0].index").value(1))
+                .andExpect(jsonPath("$[0].description").value("Description 1"))
+                .andExpect(jsonPath("$[0].taskStatus").value("to_be_fixed"))
+                .andExpect(jsonPath("$[0].createdAt").exists())
+                .andExpect(jsonPath("$[0].assignee").exists())
                 .andExpect(jsonPath("$[1].id").value(2))
-                .andExpect(jsonPath("$[1].name").value("Task 2"));
+                .andExpect(jsonPath("$[1].name").value("Task 2"))
+                .andExpect(jsonPath("$[1].index").value(2))
+                .andExpect(jsonPath("$[1].description").value("Description 2"))
+                .andExpect(jsonPath("$[1].taskStatus").value("to_review"))
+                .andExpect(jsonPath("$[1].createdAt").exists())
+                .andExpect(jsonPath("$[1].assignee").exists());
+    }
+
+    @Test
+    void getAllTasksEmpty() throws Exception {
+        when(taskService.findTasks(any(), any(), any(), any())).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/api/tasks")
+                        .header("Authorization", "Bearer " + token)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(header().string("X-Total-Count", "0"))
+                .andExpect(jsonPath("$", hasSize(0)));
     }
 
     @Test

@@ -24,3 +24,4 @@ logging:
 sentry:
   dsn: 'https://32cbc15a350637bfb2bd67a6d666a60b@o4507171956391936.ingest.de.sentry.io/4507171977101392'
   traces-sample-rate: 1.0  # Захват 100% транзакций для мониторинга производительности
+  exception-resolver-order: -2147483647
