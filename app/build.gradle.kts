@@ -30,7 +30,7 @@ application { mainClass.set("hexlet.code.app.AppApplication") }
 
 sentry {
     includeSourceContext = true
-    org = "spring-m1"
+    org = "Spring"
     projectName = "java-project-99"
     authToken = System.getenv("SENTRY_AUTH_TOKEN")
 }
