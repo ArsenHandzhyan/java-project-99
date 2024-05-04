@@ -42,7 +42,7 @@ public class TaskStatusController {
     @GetMapping("/{id}")
     public ResponseEntity<TaskStatusDTO> getTaskStatusById(@PathVariable Long id) {
         var taskStatus = taskStatusService.getTaskStatusById(id);
-        return ResponseEntity.ok(taskStatusMapper.map(taskStatus));
+        return ResponseEntity.ok().body(taskStatusMapper.map(taskStatus));
     }
 
     @GetMapping
@@ -56,7 +56,6 @@ public class TaskStatusController {
         return ResponseEntity.ok().headers(responseHeaders).body(taskStatusDTOs);
     }
 
-    @PreAuthorize("isAuthenticated()")
     @PostMapping
     public ResponseEntity<TaskStatusDTO> createTaskStatus(@RequestBody TaskStatusCreateDTO taskStatusDTO) {
         Optional<TaskStatus> taskStatusByName = taskStatusService.getTaskStatusByName(taskStatusDTO.getName());
@@ -73,16 +72,20 @@ public class TaskStatusController {
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
     public ResponseEntity<TaskStatusDTO> updateTaskStatus(@PathVariable Long id,
-                                                          @RequestBody TaskStatusUpdateDTO taskStatus) {
-        TaskStatus taskStatus1 = taskStatusService.updateTaskStatus(id, taskStatus);
-        TaskStatusDTO taskStatusDTO = taskStatusMapper.map(taskStatus1);
-        return ResponseEntity.ok(taskStatusDTO);
+                                                          @RequestBody TaskStatusUpdateDTO taskStatusUpdateDTO) {
+        TaskStatus taskStatus = taskStatusService.updateTaskStatus(id, taskStatusUpdateDTO);
+        TaskStatusDTO taskStatusDTO = taskStatusMapper.map(taskStatus);
+        return ResponseEntity.ok().body(taskStatusDTO);
     }
 
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteTaskStatus(@PathVariable Long id) {
-        taskStatusService.deleteTaskStatus(id);
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<String> deleteTaskStatus(@PathVariable Long id) {
+        try {
+            taskStatusService.deleteTaskStatus(id);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
+        }
     }
 }

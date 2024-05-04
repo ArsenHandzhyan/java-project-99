@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://dpg-cor8o3a0si5c739drqt0-a.oregon-postgres.render.com:5432/my_postgrsql_for_spring
+    driverClassName: org.postgresql.Driver
+    username: my_postgrsql_for_spring_user
+    password: cCLYBQptcueAyDzTQtY4vxnUWzrg1Jgr
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+
+spring.jpa.open-in-view: false

@@ -69,13 +69,13 @@ public class UserService {
                     }
                     return userRepository.save(user);
                 })
-                .orElseThrow(() -> new ResourceNotFoundException("User not found" + id));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found for id" + id));
     }
 
     @Transactional
-    public void deleteUser(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new EntityNotFoundException("User not found"));
+    public void deleteUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User not found for id" + id));
 
         if (!taskRepository.findByAssignee(user).isEmpty()) {
             throw new IllegalStateException("Cannot delete user with assigned tasks");

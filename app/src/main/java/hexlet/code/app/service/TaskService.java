@@ -5,9 +5,12 @@ import hexlet.code.app.dto.TaskUpdateDTO;
 import hexlet.code.app.exeption.ResourceNotFoundException;
 import hexlet.code.app.mapper.TaskMapper;
 import hexlet.code.app.model.Task;
+import hexlet.code.app.model.User;
 import hexlet.code.app.repository.TaskRepository;
+import hexlet.code.app.repository.UserRepository;
 import hexlet.code.app.specification.TaskSpecification;
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -19,11 +22,13 @@ import java.util.List;
 public class TaskService {
 
     private final TaskRepository taskRepository;
+    private final UserRepository userRepository;
     private final TaskMapper taskMapper;
 
     @Autowired
-    public TaskService(TaskRepository taskRepository, TaskMapper taskMapper) {
+    public TaskService(TaskRepository taskRepository, UserRepository userRepository, TaskMapper taskMapper) {
         this.taskRepository = taskRepository;
+        this.userRepository = userRepository;
         this.taskMapper = taskMapper;
     }
 
@@ -45,29 +50,39 @@ public class TaskService {
     }
 
     @Transactional
+    public Task getTaskByName(String name) {
+        return taskRepository.findByName(name)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found for name " + name));
+    }
+
+    @Transactional
     public Task findById(Long id) {
         return taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found for id " + id));
     }
 
     @Transactional
-    public Task update(Long id, TaskUpdateDTO task) {
+    public Task update(Long id, @Valid TaskUpdateDTO data) {
         return taskRepository.findById(id)
-                .map(updateTask -> {
-                    updateTask.setName(String.valueOf(task.getName()));
-                    updateTask.setIndex(task.getIndex());
-                    updateTask.setUpdatedAt(LocalDateTime.now());
-                    return taskRepository.save(updateTask);
+                .map(task -> {
+                    task.setName(data.getName().get());
+                    task.setIndex(data.getIndex().get());
+                    task.setTaskStatus(data.getTaskStatus().get());
+                    task.setDescription(data.getDescription().get());
+                    task.setUpdatedAt(LocalDateTime.now());
+                    return taskRepository.save(task);
                 })
-                .orElseThrow(() -> new ResourceNotFoundException("Task not found for id " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found for id" + id));
     }
 
     @Transactional
     public void delete(Long id) {
-        taskRepository.deleteById(id);
-    }
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found for id " + id));
 
-    public boolean getTaskByName(String initialTask) {
-        return taskRepository.findByName(initialTask).isPresent();
+        if (!user.getTasks().isEmpty()) {
+            throw new IllegalStateException("Cannot delete user with associated tasks");
+        }
+        userRepository.delete(user);
     }
 }

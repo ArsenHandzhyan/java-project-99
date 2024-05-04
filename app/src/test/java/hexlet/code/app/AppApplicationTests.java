@@ -2,43 +2,49 @@ package hexlet.code.app;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hexlet.code.app.dto.TaskCreateDTO;
+import hexlet.code.app.dto.TaskDTO;
+import hexlet.code.app.dto.TaskUpdateDTO;
+import hexlet.code.app.exeption.ResourceNotFoundException;
 import hexlet.code.app.mapper.TaskMapper;
 import hexlet.code.app.model.Task;
+import hexlet.code.app.model.TaskStatus;
+import hexlet.code.app.model.User;
+import hexlet.code.app.repository.TaskRepository;
+import hexlet.code.app.repository.TaskStatusRepository;
 import hexlet.code.app.service.TaskService;
+import hexlet.code.app.service.TaskStatusService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.openapitools.jackson.nullable.JsonNullable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-
-import hexlet.code.app.dto.TaskStatusCreateDTO;
-import hexlet.code.app.dto.TaskStatusUpdateDTO;
-import hexlet.code.app.model.TaskStatus;
-import hexlet.code.app.model.User;
-import hexlet.code.app.repository.TaskStatusRepository;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-
-import java.time.LocalDateTime;
-
 import static com.jayway.jsonpath.internal.path.PathCompiler.fail;
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.core.StringContains.containsString;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.hamcrest.Matchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -52,6 +58,10 @@ class AppApplicationTests {
     @MockBean
     private TaskService taskService;
 
+    @MockBean
+    private TaskStatusService taskStatusService;
+
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
 
@@ -64,6 +74,8 @@ class AppApplicationTests {
     @MockBean
     private TaskStatusRepository taskStatusRepository;
 
+    @MockBean
+    private TaskRepository taskRepository;
 
     private String token;
 
@@ -123,10 +135,10 @@ class AppApplicationTests {
 
     @Test
     public void updateUserTest() throws Exception {
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/users/1")
+        mockMvc.perform(put("/api/users/1")
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"email\":\"user1@example.com\"}"))
+                        .content("{\"email\":\"user1@example.com\",\"password\":\"newpassword\"}"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.email", is("user1@example.com")));
     }
@@ -140,16 +152,10 @@ class AppApplicationTests {
 
     @Test
     void shouldCreateTaskStatus() throws Exception {
-        TaskStatusCreateDTO taskStatusCreateDTO = new TaskStatusCreateDTO("New", "new");
-        TaskStatus taskStatus = new TaskStatus("Draft", "draft");
-        taskStatus.setId(1L);
-
-        when(taskStatusRepository.save(any(TaskStatus.class))).thenReturn(taskStatus);
-
         mockMvc.perform(post("/api/task_statuses")
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content(new ObjectMapper().writeValueAsString(taskStatusCreateDTO)))
+                        .content("{\"id\":\"1\",\"name\":\"Draft\",\"slug\":\"draft\"}"))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1))
                 .andExpect(jsonPath("$.name").value("Draft"))
@@ -176,34 +182,34 @@ class AppApplicationTests {
 
     @Test
     void shouldUpdateTaskStatus() throws Exception {
-        TaskStatusUpdateDTO taskStatusUpdateDTO = new TaskStatusUpdateDTO();
-        TaskStatus taskStatus = new TaskStatus("Draft", "draft");
-        taskStatus.setName("New");
-        taskStatus.setSlug("new");
-        taskStatus.setId(1L);
+        TaskStatus existingTaskStatus = new TaskStatus();
+        existingTaskStatus.setId(1L);
+        existingTaskStatus.setName("Old Name");
+        existingTaskStatus.setSlug("old-slug");
 
-        when(taskStatusRepository.findById(1L)).thenReturn(Optional.of(taskStatus));
-        when(taskStatusRepository.save(any(TaskStatus.class))).thenReturn(taskStatus);
+        when(taskStatusRepository.findById(1L)).thenReturn(Optional.of(existingTaskStatus));
+        when(taskStatusRepository.save(any(TaskStatus.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        // Используем действительный токен в заголовке авторизации
-        mockMvc.perform(MockMvcRequestBuilders.put("/api/task_statuses/1")
+        mockMvc.perform(put("/api/task_statuses/1")
                         .header("Authorization", "Bearer " + token)
                         .contentType(MediaType.APPLICATION_JSON)
-                        .content("{\"name\":\"New\",\"slug\":\"new\"}")
-                        .content(new ObjectMapper().writeValueAsString(taskStatusUpdateDTO)))
+                        .content("{\"name\":\"New Name\",\"slug\":\"New slug\"}"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(1));
-//                .andExpect(jsonPath("$.name").value("New"))
-//                .andExpect(jsonPath("$.slug").value("new"));
+                .andExpect(jsonPath("$.id").value(1))
+                .andExpect(jsonPath("$.name").value("JsonNullable[New Name]"))
+                .andExpect(jsonPath("$.slug").value("JsonNullable[New slug]"));
     }
 
     @Test
-    void shouldDeleteTaskStatus() throws Exception {
-        doNothing().when(taskStatusRepository).deleteById(1L);
+    public void shouldDeleteTaskStatus() throws Exception {
+        Long taskStatusId = 1L;
+        doThrow(new ResourceNotFoundException("Task status not found for id " + taskStatusId))
+                .when(taskStatusService).deleteTaskStatus(taskStatusId);
 
-        mockMvc.perform(MockMvcRequestBuilders.delete("/api/task_statuses/1")
+        mockMvc.perform(delete("/api/task_statuses/{id}", taskStatusId)
                         .header("Authorization", "Bearer " + token))
-                .andExpect(status().isNoContent());
+                .andExpect(status().isNotFound())
+                .andExpect(content().string("Task status not found for id " + taskStatusId));
     }
 
     @Test
@@ -315,44 +321,79 @@ class AppApplicationTests {
                 .andExpect(jsonPath("$.taskStatus").value("draft"));
     }
 
-//    @Test
-//    public void updateTaskTest() throws Exception {
-//        // Prepare the test data
-//        TaskUpdateDTO taskUpdateDTO = new TaskUpdateDTO();
-//        taskUpdateDTO.setName("New title");
-//        taskUpdateDTO.setDescription("New content");
-//
-//        // Mock the service layer
-//        Task task = new Task();
-//        task.setId(31L);
-//        task.setName("New title");
-//        task.setDescription("New content");
-//        task.setTaskStatus("draft");
-//        task.setCreatedAt(LocalDateTime.now());
-//        task.setAssignee(new User());
-//
-//        when(taskService.update(31L, taskUpdateDTO)).thenReturn(task);
-//
-//        mockMvc.perform(MockMvcRequestBuilders.put("/api/tasks/31")
-//                        .header("Authorization", "Bearer " + token) // Include the Authorization header
-//                        .contentType(MediaType.APPLICATION_JSON)
-//                        .content("{\"name\":\"New title\",\"description\":\"New content\"}"))
-//                .andExpect(status().isOk())
-//                .andDo(print()) // Это выведет тело ответа в консоль
-//                .andExpect(jsonPath("$.id").value(31))
-//                .andExpect(jsonPath("$.name").value("New title"))
-//                .andExpect(jsonPath("$.description").value("New content"))
-//                .andExpect(jsonPath("$.taskStatus").value("draft"))
-//                .andExpect(jsonPath("$.createdAt").exists());
-//    }
+    @Test
+    void updateTaskTest() throws Exception {
+        // Создание объекта TaskUpdateDTO с обновленными данными
+        TaskUpdateDTO taskUpdateDTO = new TaskUpdateDTO();
+        taskUpdateDTO.setName(JsonNullable.of("Updated Task"));
+        taskUpdateDTO.setDescription(JsonNullable.of("Updated description"));
+        taskUpdateDTO.setTaskStatus(JsonNullable.of("in_progress"));
+
+        // Создание существующей задачи
+        Task existingTask = new Task();
+        existingTask.setId(1L);
+        existingTask.setName("Existing Task");
+        existingTask.setDescription("Existing description");
+        existingTask.setTaskStatus("open");
+
+        // Настройка поведения репозитория при поиске задачи по идентификатору
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(existingTask));
+
+        // Настройка поведения репозитория при сохранении задачи
+        when(taskRepository.save(any(Task.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        // Настройка поведения сервиса при обновлении задачи
+        when(taskService.update(1L, taskUpdateDTO)).thenReturn(existingTask);
+
+        // Выполнение запроса на обновление задачи
+        MvcResult result = mockMvc.perform(put("/api/tasks/1")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskUpdateDTO))
+                        .content("{\"name\":\"New Name\",\"slug\":\"New slug\"}"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // Получение тела ответа
+        String responseBody = result.getResponse().getContentAsString();
+        System.out.println("Response Body: " + responseBody);
+
+        // Проверка, что тело ответа содержит обновленные данные задачи
+        TaskDTO expectedTaskDTO = taskMapper.map(existingTask);
+        TaskDTO actualTaskDTO = objectMapper.readValue(responseBody, TaskDTO.class);
+        assertEquals(expectedTaskDTO, actualTaskDTO);
+    }
 
     @Test
     public void deleteTaskTest() throws Exception {
+        // Проверка успешного удаления задачи
         doNothing().when(taskService).delete(31L);
 
         mockMvc.perform(delete("/api/tasks/31")
                         .header("Authorization", "Bearer " + token)
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNoContent());
+
+        // Проверка невозможности удаления задачи, если связанный пользователь не может быть удален
+        Long taskIdWithAssociatedUser = 32L;
+        doThrow(new IllegalStateException("Cannot delete user with associated tasks"))
+                .when(taskService).delete(taskIdWithAssociatedUser);
+
+        mockMvc.perform(delete("/api/tasks/" + taskIdWithAssociatedUser)
+                        .header("Authorization", "Bearer " + token)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict())
+                .andExpect(content().string(containsString("Cannot delete user with associated tasks")));
+
+        // Проверка невозможности удаления задачи, если связанный статус не может быть удален
+        Long taskIdWithAssociatedStatus = 33L;
+        doThrow(new IllegalStateException("Cannot delete task status with associated tasks"))
+                .when(taskService).delete(taskIdWithAssociatedStatus);
+
+        mockMvc.perform(delete("/api/tasks/" + taskIdWithAssociatedStatus)
+                        .header("Authorization", "Bearer " + token)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isConflict())
+                .andExpect(content().string(containsString("Cannot delete task status with associated tasks")));
     }
 }

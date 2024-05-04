@@ -4,6 +4,7 @@ import hexlet.code.app.dto.LabelCreateDTO;
 import hexlet.code.app.dto.TaskCreateDTO;
 import hexlet.code.app.dto.TaskStatusCreateDTO;
 import hexlet.code.app.dto.UserCreateDTO;
+import hexlet.code.app.exeption.ResourceNotFoundException;
 import hexlet.code.app.model.Label;
 import hexlet.code.app.service.LabelService;
 import hexlet.code.app.service.TaskService;
@@ -76,7 +77,10 @@ public class DataInitializer implements ApplicationRunner {
                     });
 
             // Создание дефолтных задач
-            if (!taskService.getTaskByName("Initial Task")) { // Используйте ! для проверки на отсутствие
+            try {
+                taskService.getTaskByName("Initial Task");
+                LOGGER.info("Initial task already exists");
+            } catch (ResourceNotFoundException e) {
                 TaskCreateDTO initialTask = new TaskCreateDTO();
                 initialTask.setName("Initial Task");
                 initialTask.setIndex(1);

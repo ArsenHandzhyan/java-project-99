@@ -15,8 +15,7 @@ public class TaskUpdateDTO {
     private JsonNullable<String> name;
     private JsonNullable<Integer> index;
     private JsonNullable<String> description;
-    @NotNull
     private JsonNullable<String> taskStatus;
-    private LocalDateTime updatedAt;
     private JsonNullable<User> assignee;
+    private LocalDateTime updatedAt;
 }
