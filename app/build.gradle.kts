@@ -36,7 +36,7 @@ sentry {
 }
 
 dependencies {
-    implementation("io.springfox:springfox-boot-starter:3.0.0")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.1.0")
     implementation("org.openapitools:jackson-databind-nullable:0.2.6")
     implementation("jakarta.persistence:jakarta.persistence-api")
     runtimeOnly("com.h2database:h2")

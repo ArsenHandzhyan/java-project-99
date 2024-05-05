@@ -6,6 +6,9 @@ import hexlet.code.app.dto.TaskStatusUpdateDTO;
 import hexlet.code.app.mapper.TaskStatusMapper;
 import hexlet.code.app.model.TaskStatus;
 import hexlet.code.app.service.TaskStatusService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +30,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/task_statuses")
 @CrossOrigin(exposedHeaders = "X-Total-Count")
+@Tag(name = "Task Statuses", description = "Task statuses management endpoints")
 public class TaskStatusController {
 
     private final TaskStatusService taskStatusService;
@@ -39,12 +43,14 @@ public class TaskStatusController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "Get taskStatus by ID", description = "Returns a taskStatus by its ID")
     public ResponseEntity<TaskStatusDTO> getTaskStatusById(@PathVariable Long id) {
         var taskStatus = taskStatusService.getTaskStatusById(id);
         return ResponseEntity.ok().body(taskStatusMapper.map(taskStatus));
     }
 
     @GetMapping
+    @Operation(summary = "Get all taskStatuses", description = "Returns a list of all taskStatuses")
     public ResponseEntity<List<TaskStatusDTO>> getAllTaskStatuses() {
         List<TaskStatus> taskStatuses = taskStatusService.getAllTaskStatuses();
         List<TaskStatusDTO> taskStatusDTOs = taskStatuses.stream()
@@ -57,6 +63,7 @@ public class TaskStatusController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping
+    @SecurityRequirement(name = "JWT")
     public ResponseEntity<TaskStatusDTO> createTaskStatus(@RequestBody TaskStatusCreateDTO taskStatusDTO) {
         Optional<TaskStatus> taskStatusBySlug = taskStatusService.getBySlug(taskStatusDTO.getSlug());
         if (taskStatusBySlug.isPresent()) {
@@ -71,6 +78,7 @@ public class TaskStatusController {
 
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
+    @SecurityRequirement(name = "JWT")
     public ResponseEntity<TaskStatusDTO> updateTaskStatus(@PathVariable Long id,
                                                           @RequestBody TaskStatusUpdateDTO taskStatusUpdateDTO) {
         Optional<TaskStatus> taskStatusBySlug = taskStatusService.getBySlug(taskStatusUpdateDTO.getSlug().get());
@@ -84,6 +92,7 @@ public class TaskStatusController {
 
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
+    @SecurityRequirement(name = "JWT")
     public ResponseEntity<String> deleteTaskStatus(@PathVariable Long id) {
         try {
             taskStatusService.deleteTaskStatus(id);

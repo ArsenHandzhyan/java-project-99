@@ -1,5 +1,6 @@
 package hexlet.code.app.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,6 +16,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/login")
+@Tag(name = "Authentication", description = "Authentication endpoints")
 public class AuthenticationController {
     private final JWTUtils jwtUtils;
     private final AuthenticationManager authenticationManager;

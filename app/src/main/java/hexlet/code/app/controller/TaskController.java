@@ -6,6 +6,9 @@ import hexlet.code.app.dto.TaskUpdateDTO;
 import hexlet.code.app.mapper.TaskMapper;
 import hexlet.code.app.model.Task;
 import hexlet.code.app.service.TaskService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,6 +30,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/tasks")
 @CrossOrigin(exposedHeaders = "X-Total-Count")
+@Tag(name = "Tasks", description = "Tasks management endpoints")
 public class TaskController {
 
     private final TaskService taskService;
@@ -39,6 +43,8 @@ public class TaskController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping
+    @SecurityRequirement(name = "JWT")
+    @Operation(summary = "Get all tasks", description = "Returns a list of all tasks")
     public ResponseEntity<List<TaskDTO>> getAllTasks(
             @RequestParam(required = false) String titleCont,
             @RequestParam(required = false) Long assigneeId,
@@ -53,6 +59,8 @@ public class TaskController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
+    @SecurityRequirement(name = "JWT")
+    @Operation(summary = "Get task by ID", description = "Returns a task by its ID")
     public ResponseEntity<TaskDTO> getTaskById(@PathVariable Long id) {
         TaskDTO taskDTO = taskMapper.map(taskService.findById(id));
         return ResponseEntity.ok().body(taskDTO);
@@ -60,6 +68,7 @@ public class TaskController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping
+    @SecurityRequirement(name = "JWT")
     public ResponseEntity<TaskDTO> createTask(@RequestBody TaskCreateDTO taskCreateDTO) {
         Task createdTask = taskService.create(taskCreateDTO);
         TaskDTO taskDTO = taskMapper.map(createdTask);
@@ -68,6 +77,7 @@ public class TaskController {
 
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
+    @SecurityRequirement(name = "JWT")
     public ResponseEntity<TaskDTO> updateTask(@PathVariable Long id, @RequestBody TaskUpdateDTO taskUpdateDTO) {
         Task updatedTask = taskService.update(id, taskUpdateDTO);
         TaskDTO taskDTO = taskMapper.map(updatedTask);
@@ -76,6 +86,7 @@ public class TaskController {
 
     @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
+    @SecurityRequirement(name = "JWT")
     public ResponseEntity<String> deleteTask(@PathVariable Long id) {
         try {
             taskService.delete(id);

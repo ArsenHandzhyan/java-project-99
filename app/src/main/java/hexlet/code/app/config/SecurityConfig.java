@@ -40,10 +40,12 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/",
                                 "/api/login",
+                                "/#/login",
                                 "/api/welcome",
                                 "/index.html",
                                 "/assets/**",
-                                "/swagger-ui.html").permitAll()
+                                "/swagger-ui.html/**",
+                                "/v3/api-docs/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .oauth2ResourceServer(rs -> rs.jwt(jwt -> jwt.decoder(jwtDecoder)))
