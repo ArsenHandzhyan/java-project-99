@@ -38,7 +38,6 @@ public class TaskStatusController {
         this.taskStatusMapper = taskStatusMapper;
     }
 
-    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
     public ResponseEntity<TaskStatusDTO> getTaskStatusById(@PathVariable Long id) {
         var taskStatus = taskStatusService.getTaskStatusById(id);
@@ -56,23 +55,28 @@ public class TaskStatusController {
         return ResponseEntity.ok().headers(responseHeaders).body(taskStatusDTOs);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping
     public ResponseEntity<TaskStatusDTO> createTaskStatus(@RequestBody TaskStatusCreateDTO taskStatusDTO) {
-        Optional<TaskStatus> taskStatusByName = taskStatusService.getTaskStatusByName(taskStatusDTO.getName());
-        if (taskStatusByName.isPresent()) {
-            if (taskStatusByName.get().getTasks().isEmpty()) {
-                return ResponseEntity.status(HttpStatus.CONFLICT).build();
-            }
+        Optional<TaskStatus> taskStatusBySlug = taskStatusService.getBySlug(taskStatusDTO.getSlug());
+        if (taskStatusBySlug.isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
         TaskStatus createdTaskStatus = taskStatusService.createTaskStatus(taskStatusDTO);
         TaskStatusDTO responseTaskStatusDTO = taskStatusMapper.map(createdTaskStatus);
-        return ResponseEntity.status(HttpStatus.CREATED).body(responseTaskStatusDTO);
+        HttpHeaders responseHeaders = new HttpHeaders();
+        responseHeaders.set("X-Total-Count", String.valueOf(responseTaskStatusDTO.hashCode()));
+        return ResponseEntity.status(HttpStatus.CREATED).headers(responseHeaders).body(responseTaskStatusDTO);
     }
 
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
     public ResponseEntity<TaskStatusDTO> updateTaskStatus(@PathVariable Long id,
                                                           @RequestBody TaskStatusUpdateDTO taskStatusUpdateDTO) {
+        Optional<TaskStatus> taskStatusBySlug = taskStatusService.getBySlug(taskStatusUpdateDTO.getSlug().get());
+        if (taskStatusBySlug.isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
         TaskStatus taskStatus = taskStatusService.updateTaskStatus(id, taskStatusUpdateDTO);
         TaskStatusDTO taskStatusDTO = taskStatusMapper.map(taskStatus);
         return ResponseEntity.ok().body(taskStatusDTO);

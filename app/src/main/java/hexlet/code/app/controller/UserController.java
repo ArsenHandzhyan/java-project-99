@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,12 +32,10 @@ public class UserController {
 
     private final UserService userService;
     private final UserMapper userMapper;
-    private final UserRepository userRepository;
 
     public UserController(UserService userService, UserMapper userMapper, UserRepository userRepository) {
         this.userService = userService;
         this.userMapper = userMapper;
-        this.userRepository = userRepository;
     }
 
 
@@ -50,13 +49,14 @@ public class UserController {
     @GetMapping
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         List<User> users = userService.getAllUsers();
-        List<UserDTO> userPresenceDTOs = userMapper.map((List<User>) userRepository.findAll());
+        List<UserDTO> userPresenceDTOs = userMapper.map(users);
+
         HttpHeaders responseHeaders = new HttpHeaders();
         responseHeaders.set("X-Total-Count", String.valueOf(users.size()));
         return ResponseEntity.ok().headers(responseHeaders).body(userPresenceDTOs);
     }
 
-
+    @PreAuthorize("isAuthenticated()")
     @PostMapping
     public ResponseEntity<UserDTO> createUser(@RequestBody @Valid UserCreateDTO userData) {
         User existingUser = userService.getUserByEmail(userData.getEmail());
@@ -68,6 +68,7 @@ public class UserController {
         return new ResponseEntity<>(userDTO, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
     public ResponseEntity<UserDTO> updateUser(@RequestBody @Valid UserUpdateDTO userData, @PathVariable Long id) {
         User update = userService.updateUser(id, userData);
@@ -75,6 +76,7 @@ public class UserController {
         return ResponseEntity.ok(userDTO);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteUser(@PathVariable Long id) {
         try {

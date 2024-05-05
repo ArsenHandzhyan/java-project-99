@@ -4,19 +4,20 @@ import hexlet.code.app.dto.TaskCreateDTO;
 import hexlet.code.app.dto.TaskUpdateDTO;
 import hexlet.code.app.exeption.ResourceNotFoundException;
 import hexlet.code.app.mapper.TaskMapper;
+import hexlet.code.app.model.Label;
 import hexlet.code.app.model.Task;
 import hexlet.code.app.model.User;
 import hexlet.code.app.repository.TaskRepository;
 import hexlet.code.app.repository.UserRepository;
 import hexlet.code.app.specification.TaskSpecification;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 public class TaskService {
@@ -24,12 +25,17 @@ public class TaskService {
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
     private final TaskMapper taskMapper;
+    private final LabelService labelService;
 
     @Autowired
-    public TaskService(TaskRepository taskRepository, UserRepository userRepository, TaskMapper taskMapper) {
+    public TaskService(TaskRepository taskRepository,
+                       UserRepository userRepository,
+                       TaskMapper taskMapper,
+                       LabelService labelService) {
         this.taskRepository = taskRepository;
         this.userRepository = userRepository;
         this.taskMapper = taskMapper;
+        this.labelService = labelService;
     }
 
     public List<Task> findTasks(String titleCont, Long assigneeId, String status, Long labelId) {
@@ -37,21 +43,39 @@ public class TaskService {
         return taskRepository.findAll(spec);
     }
 
-    @Transactional
-    public Task create(TaskCreateDTO task) {
-        Task createTask = taskMapper.map(task);
-        createTask.setCreatedAt(LocalDateTime.now());
-        return taskRepository.save(createTask);
+    public Task create(TaskCreateDTO taskCreateDTO) {
+        Task task = taskMapper.map(taskCreateDTO);
+
+        if (taskCreateDTO.getLabelIds() != null) {
+            Set<Label> labels = taskCreateDTO.getLabelIds().stream()
+                    .map(labelService::getLabelById)
+                    .collect(Collectors.toSet());
+            task.setLabels(labels);
+        }
+
+        return taskRepository.save(task);
     }
 
     @Transactional
-    public List<Task> findAll() {
-        return (List<Task>) taskRepository.findAll();
+    public Task update(Long id, TaskUpdateDTO taskUpdateDTO) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task not found for id " + id));
+
+        taskMapper.update(taskUpdateDTO, task);
+
+        if (taskUpdateDTO.getLabelIds() != null) {
+            Set<Label> labels = taskUpdateDTO.getLabelIds().stream()
+                    .map(labelService::getLabelById)
+                    .collect(Collectors.toSet());
+            task.setLabels(labels);
+        }
+
+        return taskRepository.save(task);
     }
 
     @Transactional
-    public Task getTaskByName(String name) {
-        return taskRepository.findByName(name)
+    public void getTaskByName(String name) {
+        taskRepository.findByName(name)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found for name " + name));
     }
 
@@ -59,20 +83,6 @@ public class TaskService {
     public Task findById(Long id) {
         return taskRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Task not found for id " + id));
-    }
-
-    @Transactional
-    public Task update(Long id, @Valid TaskUpdateDTO data) {
-        return taskRepository.findById(id)
-                .map(task -> {
-                    task.setName(data.getName().get());
-                    task.setIndex(data.getIndex().get());
-                    task.setTaskStatus(data.getTaskStatus().get());
-                    task.setDescription(data.getDescription().get());
-                    task.setUpdatedAt(LocalDateTime.now());
-                    return taskRepository.save(task);
-                })
-                .orElseThrow(() -> new ResourceNotFoundException("Task not found for id" + id));
     }
 
     @Transactional

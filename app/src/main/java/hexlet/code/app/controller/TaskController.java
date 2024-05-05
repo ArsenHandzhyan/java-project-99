@@ -6,7 +6,6 @@ import hexlet.code.app.dto.TaskUpdateDTO;
 import hexlet.code.app.mapper.TaskMapper;
 import hexlet.code.app.model.Task;
 import hexlet.code.app.service.TaskService;
-import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,18 +61,20 @@ public class TaskController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping
     public ResponseEntity<TaskDTO> createTask(@RequestBody TaskCreateDTO taskCreateDTO) {
-        TaskDTO taskDTO = taskMapper.map(taskService.create(taskCreateDTO));
-        return ResponseEntity.ok().body(taskDTO);
+        Task createdTask = taskService.create(taskCreateDTO);
+        TaskDTO taskDTO = taskMapper.map(createdTask);
+        return ResponseEntity.status(HttpStatus.CREATED).body(taskDTO);
     }
 
     @PreAuthorize("isAuthenticated()")
     @PutMapping("/{id}")
-    public ResponseEntity<TaskDTO> updateTask(@PathVariable Long id, @RequestBody @Valid TaskUpdateDTO taskUpdateDTO) {
+    public ResponseEntity<TaskDTO> updateTask(@PathVariable Long id, @RequestBody TaskUpdateDTO taskUpdateDTO) {
         Task updatedTask = taskService.update(id, taskUpdateDTO);
         TaskDTO taskDTO = taskMapper.map(updatedTask);
         return ResponseEntity.ok(taskDTO);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteTask(@PathVariable Long id) {
         try {

@@ -10,10 +10,8 @@ import hexlet.code.app.repository.TaskStatusRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 public class TaskStatusService {
@@ -33,7 +31,6 @@ public class TaskStatusService {
     @Transactional
     public TaskStatus createTaskStatus(TaskStatusCreateDTO taskStatusDTO) {
         TaskStatus taskStatus = taskStatusMapper.map(taskStatusDTO);
-        taskStatus.setCreatedAt(LocalDateTime.now());
         return taskStatusRepository.save(taskStatus);
     }
 
@@ -53,20 +50,15 @@ public class TaskStatusService {
         return taskStatusRepository.findByName(name);
     }
 
-    public Set<TaskStatus> getBySlug(String slug) {
+    public Optional<TaskStatus> getBySlug(String slug) {
         return taskStatusRepository.findBySlug(slug);
     }
 
     @Transactional
     public TaskStatus updateTaskStatus(Long id, TaskStatusUpdateDTO taskStatusUpdateDTO) {
-        TaskStatus taskStatus = getTaskStatusById(id);
-        if (taskStatusUpdateDTO.getName() != null) {
-            taskStatus.setName(String.valueOf(taskStatusUpdateDTO.getName()));
-        }
-        if (taskStatusUpdateDTO.getSlug() != null) {
-            taskStatus.setSlug(String.valueOf(taskStatusUpdateDTO.getSlug()));
-        }
-        taskStatus.setUpdatedAt(LocalDateTime.now());
+        TaskStatus taskStatus = taskStatusRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Task status not found for id " + id));
+        taskStatusMapper.update(taskStatusUpdateDTO, taskStatus);
         return taskStatusRepository.save(taskStatus);
     }
 
@@ -78,7 +70,6 @@ public class TaskStatusService {
         if (taskRepository.existsByTaskStatus(String.valueOf(taskStatus))) {
             throw new IllegalStateException("Cannot delete task status with associated tasks");
         }
-
         taskStatusRepository.delete(taskStatus);
     }
 }

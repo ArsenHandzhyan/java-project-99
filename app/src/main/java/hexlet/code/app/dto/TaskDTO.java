@@ -1,19 +1,21 @@
 package hexlet.code.app.dto;
 
-import hexlet.code.app.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.openapitools.jackson.nullable.JsonNullable;
 
-import java.time.LocalDateTime;
+import java.util.Set;
 
 @Data
 @AllArgsConstructor
 public class TaskDTO {
-    private Long id;
-    private Integer index;
-    private String name;
-    private String description;
-    private String taskStatus;
-    private User assignee;
-    private LocalDateTime createdAt;
+    private Integer id;
+    private JsonNullable<Set<Long>> labelIds;
+    private JsonNullable<Integer> index;
+    private String createdAt;
+    private JsonNullable<Long> assigneeId;
+    private JsonNullable<String> title;
+    private JsonNullable<String> content;
+    private JsonNullable<String> status;
+    private String updateAt;
 }

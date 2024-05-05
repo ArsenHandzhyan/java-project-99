@@ -45,21 +45,31 @@ public class DataInitializer implements ApplicationRunner {
 
         try {
             // Создание администратора системы, если он еще не создан
-            String adminEmail = "hexlet@example.com";
-            if (userService.getUserByEmail(adminEmail) == null) {
-                UserCreateDTO admin = new UserCreateDTO();
-                admin.setEmail(adminEmail);
-                admin.setPassword("qwerty");
-                userService.createUser(admin);
-                LOGGER.info("Admin user created");
+            String admin1Email = "hexlet@example.com";
+            if (userService.getUserByEmail(admin1Email) == null) {
+                UserCreateDTO admin1 = new UserCreateDTO();
+                admin1.setEmail(admin1Email);
+                admin1.setPassword("qwerty");
+                userService.createUser(admin1);
+                LOGGER.info("Admin1 user created");
+            }
+
+            String admin2Email = "hexlet2@example.com";
+            if (userService.getUserByEmail(admin2Email) == null) {
+                UserCreateDTO admin2 = new UserCreateDTO();
+                admin2.setEmail(admin2Email);
+                admin2.setPassword("qwerty");
+                userService.createUser(admin2);
+                LOGGER.info("Admin2 user created");
             }
 
             // Добавление дефолтных статусов задач
             Arrays.asList("Draft", "ToReview", "ToBeFixed", "ToPublish", "Published")
                     .forEach(statusName -> {
                         if (taskStatusService.getTaskStatusByName(statusName).isEmpty()) {
-                            TaskStatusCreateDTO taskStatus = new TaskStatusCreateDTO(statusName,
-                                    statusName.toLowerCase().replace(" ", "_"));
+                            TaskStatusCreateDTO taskStatus = new TaskStatusCreateDTO();
+                            taskStatus.setName(statusName);
+                            taskStatus.setSlug(statusName.toLowerCase().replace(" ", "_"));
                             taskStatusService.createTaskStatus(taskStatus);
                             LOGGER.info("Task status '{}' created", statusName);
                         }
@@ -89,7 +99,7 @@ public class DataInitializer implements ApplicationRunner {
                 Set<Label> labels = new HashSet<>();
                 labels.add(labelService.getLabelByName("feature"));
                 labels.add(labelService.getLabelByName("bug"));
-                initialTask.setAssignee(userService.getUserByEmail(adminEmail));
+                initialTask.setAssignee(userService.getUserByEmail(admin1Email).getId());
                 taskService.create(initialTask);
                 LOGGER.info("Initial task created");
             }

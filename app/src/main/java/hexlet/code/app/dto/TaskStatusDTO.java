@@ -2,14 +2,14 @@ package hexlet.code.app.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.time.LocalDateTime;
+import org.openapitools.jackson.nullable.JsonNullable;
 
 @Data
 @AllArgsConstructor
 public class TaskStatusDTO {
-    private Long id;
-    private String name;
-    private String slug;
-    private LocalDateTime createdAt;
+    private Integer id;
+    private JsonNullable<String> name;
+    private JsonNullable<String> slug;
+    private String createdAt;
+    private String updateAt;
 }

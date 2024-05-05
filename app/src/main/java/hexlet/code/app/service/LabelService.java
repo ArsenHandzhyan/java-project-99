@@ -3,23 +3,29 @@ package hexlet.code.app.service;
 import hexlet.code.app.dto.LabelCreateDTO;
 import hexlet.code.app.dto.LabelUpdateDTO;
 import hexlet.code.app.exeption.ResourceNotFoundException;
+import hexlet.code.app.mapper.LabelMapper;
+import hexlet.code.app.mapper.LabelMapperImpl;
+import hexlet.code.app.mapper.TaskMapper;
 import hexlet.code.app.model.Label;
 import hexlet.code.app.repository.LabelRepository;
 import hexlet.code.app.repository.TaskRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 public class LabelService {
     private final LabelRepository labelRepository;
     private final TaskRepository taskRepository;
+    private final LabelMapper labelMapper;
 
-    public LabelService(LabelRepository labelRepository, TaskRepository taskRepository) {
+    public LabelService(LabelRepository labelRepository,
+                        TaskRepository taskRepository,
+                        LabelMapper labelMapper) {
         this.labelRepository = labelRepository;
         this.taskRepository = taskRepository;
+        this.labelMapper = labelMapper;
     }
 
     @Transactional
@@ -29,21 +35,16 @@ public class LabelService {
 
     @Transactional
     public Label createLabel(LabelCreateDTO labelCreateDTO) {
-        Label label = new Label();
-        label.setName(labelCreateDTO.getName());
-        label.setCreatedAt(LocalDateTime.now());
+        Label label = labelMapper.map(labelCreateDTO);
         return labelRepository.save(label);
     }
 
     @Transactional
     public Label updateLabel(Long id, LabelUpdateDTO labelUpdateDTO) {
-        return labelRepository.findById(id)
-                .map(updateLabel -> {
-                    updateLabel.setName(String.valueOf(labelUpdateDTO.getName()));
-                    updateLabel.setUpdatedAt(LocalDateTime.now());
-                    return labelRepository.save(updateLabel);
-                })
+        var label = labelRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Label not found for id " + id));
+        labelMapper.update(labelUpdateDTO, label);
+        return labelRepository.save(label);
     }
 
     @Transactional

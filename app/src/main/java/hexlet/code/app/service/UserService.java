@@ -13,7 +13,6 @@ import jakarta.validation.Valid;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,7 +38,6 @@ public class UserService {
     public Optional<User> createUser(UserCreateDTO dto) {
         User user = userMapper.map(dto);
         user.setPassword(passwordEncoder.encode(dto.getPassword()));
-        user.setCreatedAt(LocalDateTime.now());
         return Optional.of(userRepository.save(user));
     }
 
@@ -60,16 +58,17 @@ public class UserService {
 
     @Transactional
     public User updateUser(Long id, @Valid UserUpdateDTO userData) {
-        return userRepository.findById(id)
-                .map(user -> {
-                    user.setEmail(userData.getEmail());
-                    user.setUpdatedAt(LocalDateTime.now());
+        User user = userRepository.findById(id)
+                .map(user1 -> {
+                    user1.setEmail(userData.getEmail());
                     if (userData.getPassword() != null && !userData.getPassword().isEmpty()) {
-                        user.setPassword(passwordEncoder.encode(userData.getPassword()));
+                        user1.setPassword(passwordEncoder.encode(userData.getPassword()));
                     }
-                    return userRepository.save(user);
+                    return userRepository.save(user1);
                 })
                 .orElseThrow(() -> new ResourceNotFoundException("User not found for id" + id));
+        userMapper.update(userData, user);
+        return userRepository.save(user);
     }
 
     @Transactional
@@ -77,7 +76,7 @@ public class UserService {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("User not found for id" + id));
 
-        if (!taskRepository.findByAssignee(user).isEmpty()) {
+        if (!taskRepository.findByAssignee(id).isEmpty()) {
             throw new IllegalStateException("Cannot delete user with assigned tasks");
         }
 

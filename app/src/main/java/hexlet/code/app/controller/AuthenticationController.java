@@ -1,7 +1,9 @@
 package hexlet.code.app.controller;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -9,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import hexlet.code.app.dto.AuthRequest;
 import hexlet.code.app.util.JWTUtils;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequestMapping("/api/login")
@@ -23,11 +26,15 @@ public class AuthenticationController {
 
     @PostMapping
     public String create(@RequestBody AuthRequest authRequest) {
-        var authentication = new UsernamePasswordAuthenticationToken(
-                authRequest.getUsername(), authRequest.getPassword());
+        try {
+            var authentication = new UsernamePasswordAuthenticationToken(
+                    authRequest.getUsername(), authRequest.getPassword());
 
-        authenticationManager.authenticate(authentication);
+            authenticationManager.authenticate(authentication);
 
-        return jwtUtils.generateToken(authRequest.getUsername());
+            return jwtUtils.generateToken(authRequest.getUsername());
+        } catch (AuthenticationException e) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Invalid username or password");
+        }
     }
 }
