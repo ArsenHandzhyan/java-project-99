@@ -4,8 +4,6 @@ import hexlet.code.app.dto.LabelCreateDTO;
 import hexlet.code.app.dto.LabelUpdateDTO;
 import hexlet.code.app.exeption.ResourceNotFoundException;
 import hexlet.code.app.mapper.LabelMapper;
-import hexlet.code.app.mapper.LabelMapperImpl;
-import hexlet.code.app.mapper.TaskMapper;
 import hexlet.code.app.model.Label;
 import hexlet.code.app.repository.LabelRepository;
 import hexlet.code.app.repository.TaskRepository;
