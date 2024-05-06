@@ -215,4 +215,57 @@ class AppApplicationTests {
                 .andExpect(status().isConflict())
                 .andExpect(content().string(containsString("Cannot delete task status with associated tasks")));
     }
+
+    @Test
+    public void createUserWithInvalidEmailTest() throws Exception {
+        String invalidEmail = "not_an_email";
+        mockMvc.perform(post("/api/users")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"" + invalidEmail + "\", \"password\":\"password\"}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void createTaskWithInvalidStatusTest() throws Exception {
+        TaskCreateDTO taskCreateDTO = new TaskCreateDTO();
+        taskCreateDTO.setIndex(13);
+        taskCreateDTO.setContent("Invalid Status Test");
+        taskCreateDTO.setStatus("invalid_status");
+
+        mockMvc.perform(post("/api/tasks")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskCreateDTO)))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void accessProtectedRouteWithoutTokenTest() throws Exception {
+        mockMvc.perform(get("/api/users"))
+                .andExpect(status().isFound());
+    }
+
+    @Test
+    public void accessProtectedRouteWithInvalidTokenTest() throws Exception {
+        mockMvc.perform(get("/api/users")
+                        .header("Authorization", "Bearer invalid_token"))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    public void updateUserInvalidDataTest() throws Exception {
+        mockMvc.perform(put("/api/users/1")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"email\":\"invalid_email\",\"password\":\"newpassword\"}"))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    public void deleteNonExistentUserTest() throws Exception {
+        mockMvc.perform(delete("/api/users/999")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isNotFound());
+    }
 }
