@@ -24,5 +24,5 @@ public class TaskUpdateDTO {
     @NotBlank(message = "Task status is mandatory")
     private JsonNullable<String> status;
 
-    private JsonNullable<Long> assignee_id;
+    private JsonNullable<Long> assigneeId;
 }

@@ -23,5 +23,5 @@ public class TaskCreateDTO {
     @NotBlank(message = "Task status is mandatory")
     private String status;
 
-    private Long assignee_id;
+    private Long assigneeId;
 }

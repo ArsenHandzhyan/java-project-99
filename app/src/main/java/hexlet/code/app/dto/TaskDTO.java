@@ -13,7 +13,7 @@ public class TaskDTO {
     private JsonNullable<Set<Long>> taskLabelIds;
     private JsonNullable<Integer> index;
     private String createdAt;
-    private JsonNullable<Long> assignee_id;
+    private JsonNullable<Long> assigneeId;
     private JsonNullable<String> title;
     private JsonNullable<String> content;
     private JsonNullable<String> status;

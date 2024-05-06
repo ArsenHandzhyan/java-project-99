@@ -106,7 +106,7 @@ public class DataInitializer implements ApplicationRunner {
                 labelIds.add(labelService.getLabelByName("bug").getId());
                 initialTask.setTaskLabelIds(labelIds);
 
-                initialTask.setAssignee_id(userService.getUserByEmail(admin1Email).getId());
+                initialTask.setAssigneeId(userService.getUserByEmail(admin1Email).getId());
                 taskService.create(initialTask);
                 LOGGER.info("Initial task created");
             }

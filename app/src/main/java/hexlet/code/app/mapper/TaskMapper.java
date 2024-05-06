@@ -26,10 +26,11 @@ import java.util.stream.Collectors;
 )
 public abstract class TaskMapper {
     @Mapping(target = "taskLabelIds", source = "labels", qualifiedByName = "mapLabelsToIds")
-    @Mapping(target = "assignee_id", source = "assignee")
+    @Mapping(target = "assigneeId", source = "assignee")
     @Mapping(target = "title", source = "name")
     @Mapping(target = "content", source = "description")
     @Mapping(target = "status", source = "taskStatus")
+    @Mapping(target = "index", source = "index")
     public abstract TaskDTO map(Task task);
 
     @Mapping(target = "labels", source = "taskLabelIds", qualifiedByName = "mapIdsToLabels")
