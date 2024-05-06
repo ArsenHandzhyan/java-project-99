@@ -9,6 +9,7 @@ import hexlet.code.app.service.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -69,7 +70,7 @@ public class TaskController {
     @PreAuthorize("isAuthenticated()")
     @PostMapping
     @SecurityRequirement(name = "JWT")
-    public ResponseEntity<TaskDTO> createTask(@RequestBody TaskCreateDTO taskCreateDTO) {
+    public ResponseEntity<TaskDTO> createTask(@RequestBody  @Valid TaskCreateDTO taskCreateDTO) {
         Task createdTask = taskService.create(taskCreateDTO);
         TaskDTO taskDTO = taskMapper.map(createdTask);
         return ResponseEntity.status(HttpStatus.CREATED).body(taskDTO);

@@ -25,18 +25,26 @@ import java.util.stream.Collectors;
         unmappedTargetPolicy = ReportingPolicy.IGNORE
 )
 public abstract class TaskMapper {
-    @Mapping(target = "labelIds", source = "labels", qualifiedByName = "mapLabelsToIds")
+    @Mapping(target = "taskLabelIds", source = "labels", qualifiedByName = "mapLabelsToIds")
     @Mapping(target = "assignee_id", source = "assignee")
     @Mapping(target = "title", source = "name")
     @Mapping(target = "content", source = "description")
     @Mapping(target = "status", source = "taskStatus")
     public abstract TaskDTO map(Task task);
 
-    @Mapping(target = "labels", source = "labelIds", qualifiedByName = "mapIdsToLabels")
+    @Mapping(target = "labels", source = "taskLabelIds", qualifiedByName = "mapIdsToLabels")
+    @Mapping(target = "name", source = "title")
+    @Mapping(target = "taskStatus", source = "status")
+    @Mapping(target = "description", source = "content")
+    @Mapping(target = "index", source = "index")
     public abstract Task map(TaskCreateDTO taskCreateDTO);
 
-    @Mapping(target = "labels", source = "labelIds", qualifiedByName = "mapIdsToLabels")
-    public abstract void update(TaskUpdateDTO taskUpdateDTO, @MappingTarget Task task);
+    @Mapping(target = "labels", source = "taskLabelIds", qualifiedByName = "mapIdsToLabels")
+    @Mapping(target = "name", source = "title")
+    @Mapping(target = "taskStatus", source = "status")
+    @Mapping(target = "description", source = "content")
+    @Mapping(target = "index", source = "index")
+    public abstract Task update(TaskUpdateDTO taskUpdateDTO, @MappingTarget Task task);
 
     @Named("mapLabelsToIds")
     Set<Long> mapLabelsToIds(Set<Label> labels) {

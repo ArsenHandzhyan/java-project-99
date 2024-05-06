@@ -10,5 +10,4 @@ public class LabelDTO {
     private Integer id;
     private JsonNullable<String> name;
     private String createdAt;
-    private String updateAt;
 }

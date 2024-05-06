@@ -5,7 +5,6 @@ import hexlet.code.app.dto.TaskCreateDTO;
 import hexlet.code.app.dto.TaskStatusCreateDTO;
 import hexlet.code.app.dto.UserCreateDTO;
 import hexlet.code.app.exeption.ResourceNotFoundException;
-import hexlet.code.app.model.Label;
 import hexlet.code.app.service.LabelService;
 import hexlet.code.app.service.TaskService;
 import hexlet.code.app.service.TaskStatusService;
@@ -28,6 +27,7 @@ public class DataInitializer implements ApplicationRunner {
     private final TaskStatusService taskStatusService;
     private final LabelService labelService;
     private final TaskService taskService;
+
 
     public DataInitializer(UserService userService,
                            TaskStatusService taskStatusService,
@@ -92,14 +92,21 @@ public class DataInitializer implements ApplicationRunner {
                 LOGGER.info("Initial task already exists");
             } catch (ResourceNotFoundException e) {
                 TaskCreateDTO initialTask = new TaskCreateDTO();
-                initialTask.setName("Initial Task");
+                initialTask.setTitle("Initial Task");
                 initialTask.setIndex(1);
-                initialTask.setDescription("This is an initial task created at application startup.");
-                initialTask.setTaskStatus("Draft"); // Установите статус задачи напрямую
-                Set<Label> labels = new HashSet<>();
-                labels.add(labelService.getLabelByName("feature"));
-                labels.add(labelService.getLabelByName("bug"));
-                initialTask.setAssignee(userService.getUserByEmail(admin1Email).getId());
+                initialTask.setContent("This is an initial task created at application startup.");
+
+                // Установка статуса задачи
+                String taskStatusName = "Draft"; // Замените на нужный статус задачи
+                initialTask.setStatus(taskStatusName);
+
+                // Установка меток задачи
+                Set<Long> labelIds = new HashSet<>();
+                labelIds.add(labelService.getLabelByName("feature").getId());
+                labelIds.add(labelService.getLabelByName("bug").getId());
+                initialTask.setTaskLabelIds(labelIds);
+
+                initialTask.setAssignee_id(userService.getUserByEmail(admin1Email).getId());
                 taskService.create(initialTask);
                 LOGGER.info("Initial task created");
             }

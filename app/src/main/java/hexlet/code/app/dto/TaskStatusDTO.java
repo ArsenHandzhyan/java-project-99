@@ -11,5 +11,4 @@ public class TaskStatusDTO {
     private JsonNullable<String> name;
     private JsonNullable<String> slug;
     private String createdAt;
-    private String updateAt;
 }

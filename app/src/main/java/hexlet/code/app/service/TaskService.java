@@ -45,14 +45,7 @@ public class TaskService {
 
     public Task create(TaskCreateDTO taskCreateDTO) {
         Task task = taskMapper.map(taskCreateDTO);
-
-        if (taskCreateDTO.getLabelIds() != null) {
-            Set<Label> labels = taskCreateDTO.getLabelIds().stream()
-                    .map(labelService::getLabelById)
-                    .collect(Collectors.toSet());
-            task.setLabels(labels);
-        }
-
+        task.setIndex(generateTaskIndex()); // Установка индекса для новой задачи
         return taskRepository.save(task);
     }
 
@@ -63,8 +56,8 @@ public class TaskService {
 
         taskMapper.update(taskUpdateDTO, task);
 
-        if (taskUpdateDTO.getLabelIds() != null) {
-            Set<Label> labels = taskUpdateDTO.getLabelIds().stream()
+        if (taskUpdateDTO.getTaskLabelIds() != null) {
+            Set<Label> labels = taskUpdateDTO.getTaskLabelIds().get().stream()
                     .map(labelService::getLabelById)
                     .collect(Collectors.toSet());
             task.setLabels(labels);
@@ -94,5 +87,14 @@ public class TaskService {
             throw new IllegalStateException("Cannot delete user with associated tasks");
         }
         userRepository.delete(user);
+    }
+
+    private Integer generateTaskIndex() {
+        Integer maxIndex = getMaxIndex();
+        return maxIndex != null ? maxIndex + 1 : 0;
+    }
+
+    public Integer getMaxIndex() {
+        return taskRepository.getMaxIndex();
     }
 }
