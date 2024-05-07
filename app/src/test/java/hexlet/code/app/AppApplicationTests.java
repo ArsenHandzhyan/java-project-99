@@ -1,9 +1,16 @@
 package hexlet.code.app;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hexlet.code.app.dto.LabelCreateDTO;
+import hexlet.code.app.dto.LabelUpdateDTO;
 import hexlet.code.app.dto.TaskCreateDTO;
+import hexlet.code.app.dto.TaskStatusCreateDTO;
+import hexlet.code.app.dto.TaskStatusUpdateDTO;
 import hexlet.code.app.exeption.ResourceNotFoundException;
+import hexlet.code.app.model.Label;
 import hexlet.code.app.model.Task;
+import hexlet.code.app.model.TaskStatus;
+import hexlet.code.app.service.LabelService;
 import hexlet.code.app.service.TaskService;
 import hexlet.code.app.service.TaskStatusService;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,14 +26,19 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.Collections;
+import java.util.Optional;
 
 import static com.jayway.jsonpath.internal.path.PathCompiler.fail;
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.core.StringContains.containsString;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -36,7 +48,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -55,6 +66,9 @@ class AppApplicationTests {
 
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    private LabelService labelService;
 
     private String token;
 
@@ -267,5 +281,137 @@ class AppApplicationTests {
         mockMvc.perform(delete("/api/users/999")
                         .header("Authorization", "Bearer " + token))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void getAllLabelsEmpty() throws Exception {
+        when(labelService.getAllLabels()).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/api/labels")
+                        .header("Authorization", "Bearer " + token)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(header().string("X-Total-Count", "0"))
+                .andExpect(jsonPath("$", hasSize(0)));
+    }
+
+    @Test
+    void createLabel() throws Exception {
+        LabelCreateDTO labelCreateDTO = new LabelCreateDTO();
+        labelCreateDTO.setName("Test Label");
+
+        Label label = new Label();
+        label.setId(1L);
+        label.setName("Test Label");
+
+        when(labelService.createLabel(any(LabelCreateDTO.class))).thenReturn(label);
+
+        mockMvc.perform(post("/api/labels")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(labelCreateDTO)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.name", is("Test Label")));
+    }
+
+    @Test
+    void updateLabel() throws Exception {
+        String updatedName = "Updated Label";
+
+        Label label = new Label();
+        label.setId(1L);
+        label.setName(updatedName);
+
+        when(labelService.updateLabel(eq(1L), any(LabelUpdateDTO.class))).thenReturn(label);
+
+        mockMvc.perform(put("/api/labels/1")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"" + updatedName + "\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.name", is(updatedName)));
+    }
+
+    @Test
+    void deleteLabel() throws Exception {
+        doNothing().when(labelService).deleteLabel(1L);
+
+        mockMvc.perform(delete("/api/labels/1")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isNoContent());
+
+        verify(labelService, times(1)).deleteLabel(1L);
+    }
+
+    @Test
+    void getAllTaskStatusesEmpty() throws Exception {
+        when(taskStatusService.getAllTaskStatuses()).thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/api/task_statuses")
+                        .header("Authorization", "Bearer " + token)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(header().string("X-Total-Count", "0"))
+                .andExpect(jsonPath("$", hasSize(0)));
+    }
+
+    @Test
+    void createTaskStatus() throws Exception {
+        TaskStatusCreateDTO taskStatusCreateDTO = new TaskStatusCreateDTO();
+        taskStatusCreateDTO.setName("Test Status");
+        taskStatusCreateDTO.setSlug("test-status");
+
+        TaskStatus taskStatus = new TaskStatus();
+        taskStatus.setId(1L);
+        taskStatus.setName("Test Status");
+        taskStatus.setSlug("test-status");
+
+        when(taskStatusService.getBySlug(anyString())).thenReturn(Optional.empty());
+        when(taskStatusService.createTaskStatus(any(TaskStatusCreateDTO.class))).thenReturn(taskStatus);
+
+        mockMvc.perform(post("/api/task_statuses")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskStatusCreateDTO)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.name", is("Test Status")))
+                .andExpect(jsonPath("$.slug", is("test-status")));
+    }
+
+    @Test
+    void updateTaskStatus() throws Exception {
+        String updatedName = "Updated Status";
+        String updatedSlug = "updated-status";
+
+        TaskStatus taskStatus = new TaskStatus();
+        taskStatus.setId(1L);
+        taskStatus.setName(updatedName);
+        taskStatus.setSlug(updatedSlug);
+
+        when(taskStatusService.getBySlug(anyString())).thenReturn(Optional.empty());
+        when(taskStatusService.updateTaskStatus(eq(1L), any(TaskStatusUpdateDTO.class))).thenReturn(taskStatus);
+
+        mockMvc.perform(put("/api/task_statuses/1")
+                        .header("Authorization", "Bearer " + token)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"name\":\"" + updatedName + "\",\"slug\":\"" + updatedSlug + "\"}"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id", is(1)))
+                .andExpect(jsonPath("$.name", is(updatedName)))
+                .andExpect(jsonPath("$.slug", is(updatedSlug)));
+    }
+
+    @Test
+    void deleteTaskStatus() throws Exception {
+        doNothing().when(taskStatusService).deleteTaskStatus(1L);
+
+        mockMvc.perform(delete("/api/task_statuses/1")
+                        .header("Authorization", "Bearer " + token))
+                .andExpect(status().isNoContent());
+
+        verify(taskStatusService, times(1)).deleteTaskStatus(1L);
     }
 }
